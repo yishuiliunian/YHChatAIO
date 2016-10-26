@@ -44,13 +44,11 @@
 
 @interface YHChatElement() <YHMessageItemBaseElementEvents, UIScrollViewDelegate>
 {
-    int _unreadCount;
     NSArray* _serverMessageCache;
     NSTimer* _serverCacheCheckTimer;
 }
 @property (nonatomic, strong) UIImage* leftBubbleImage;
 @property (nonatomic, strong) UIImage* rightBubbleImage;
-@property (nonatomic, assign) int unreadCount;
 @property (nonatomic, strong) NSArray* serverMessageCache;
 @end
 @implementation YHChatElement
@@ -293,15 +291,16 @@
             self.tableView.contentOffset.y > (self.tableView.contentSize.height - 4*CGRectGetHeight(self.tableView.bounds))) {
             dispatch_async(dispatch_get_main_queue(), ^{
                 [self.tableView scrollToRowAtIndexPath:maxPath atScrollPosition:UITableViewScrollPositionBottom animated:YES];
+                _serverMessageCache  = [NSArray new];
             });
         } else {
-            _unreadCount += serverMessages.count;
+            int unreadCount = serverMessages.count;
             DZInputTextNoticeView* notice = [DZInputTextNoticeView new];
-            notice.text = [NSString stringWithFormat:@"你有%d条新消息",_unreadCount];
+            notice.text = [NSString stringWithFormat:@"你有%d条新消息",unreadCount];
             __weak typeof(self) weakSelf = self;
             [notice setAction:^() {
                 [weakSelf scrollToEnd];
-                weakSelf.unreadCount = 0;
+                weakSelf.serverMessageCache  = [NSArray new];
             }];
             [self.inputViewController showNoticeView:notice];
         }

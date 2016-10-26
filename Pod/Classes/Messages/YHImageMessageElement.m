@@ -58,8 +58,8 @@
     int32_t height= _imageData.height;
     CGFloat width = _imageData.width;
     
-    CGFloat maxWidth = CGRectGetWidth(_estimateContentRect) * 2/3.0;
-    CGFloat minWidth = CGRectGetWidth(_estimateContentRect) * 0.38;
+    CGFloat maxWidth = 100;
+    CGFloat minWidth = 50;
     
     width = MAX(minWidth, width);
     width = MIN(maxWidth, width);
