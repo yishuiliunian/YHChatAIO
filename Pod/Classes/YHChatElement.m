@@ -154,17 +154,17 @@
 - (void) reloadData
 {
     
-        NSArray* array =  [YHActiveDBConnection  message10WithFromMsgID:INT64_MAX sessionID:_sessionInfo.uuid];
-        for (YHMessage* msg in array) {
-            YHMessageItemBaseElement* ele = [self __elementWithYHMessage:msg];
-            if (ele) {
-                [_dataController addObject:ele];
-            }
+    NSArray* array =  [YHActiveDBConnection  message10WithFromMsgID:INT64_MAX sessionID:_sessionInfo.uuid];
+    for (YHMessage* msg in array) {
+        YHMessageItemBaseElement* ele = [self __elementWithYHMessage:msg];
+        if (ele) {
+            [_dataController addObject:ele];
         }
-        [super reloadData];
-        if (array.count) {
-            [self scrollToEnd];
-        }
+    }
+    [super reloadData];
+    if (array.count) {
+        [self scrollToEnd];
+    }
 
 }
 

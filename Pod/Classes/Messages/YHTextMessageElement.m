@@ -36,7 +36,7 @@
         return self;
     }
     _viewClass = [YHTextMessageCell class];
-    _font = DZFontCellDetail();
+    _font = [UIFont systemFontOfSize:15];
     return self;
 }
 
@@ -76,6 +76,7 @@
     [attributeString yy_setAttributes:attributes];
     [[DZEmojiMapper mapper].textEmojiParser parseText:attributeString selectedRange:NULL];
     [[YHLinkedTextParser new] parseText:attributeString responser:self];
+    [attributeString yy_setLineSpacing:3 range:NSMakeRange(0, attributeString.length)];
     YYTextLayout* layout = [YYTextLayout layoutWithContainerSize:CGSizeMake(maxWidth, CGFLOAT_MAX) text:attributeString];
     CGSize size  = layout.textBoundingSize;
     _textLayout = layout;
