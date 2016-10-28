@@ -16,6 +16,7 @@
 #import <YHNetCore.h>
 #import "YHClassMemberListElement.h"
 #import "YHClassMemberListViewController.h"
+#import <ChameleonFramework/Chameleon.h>
 
  int32_t const EVENT_TROOP_MEMBER_KILL = 0x4001;//事件（全员） + 被踢者收系统消息
  static  int32_t  const  EVENT_TROOP_CLOSE = 0x4002;//群关闭 = 事件 （非全员，群主不用收该事件） + 所有人收到关群的系统消息(包括群主)
@@ -129,6 +130,7 @@ static int32_t const EVENT_CLASS_JOIN = 0x4011; //有人申请加入班级
 
 - (NSMutableAttributedString*) buildContentText
 {
+    UIFont* font = [UIFont systemFontOfSize:14];
     NSString* output = @"";
     switch ([_contentData subType]) {
         case EVENT_TROOP_MEMBER_KILL:
@@ -156,10 +158,10 @@ static int32_t const EVENT_CLASS_JOIN = 0x4011; //有人申请加入班级
             output = @"系统通知，请升级版本查看";
             break;
     }
-    YYTextBorder* boarder = [YYTextBorder borderWithFillColor:[UIColor lightGrayColor] cornerRadius:4];
+    YYTextBorder* boarder = [YYTextBorder borderWithFillColor:[UIColor flatWhiteColorDark] cornerRadius:4];
     boarder.insets = UIEdgeInsetsMake(-2, -2, -3, -2);
     NSMutableAttributedString* mAStr = [[NSMutableAttributedString alloc] initWithString:output];
-    mAStr.yy_font = [UIFont systemFontOfSize:11];
+    mAStr.yy_font = font;
     mAStr.yy_color = [UIColor whiteColor];
     mAStr.yy_textBackgroundBorder = boarder;
     return mAStr;
@@ -172,7 +174,7 @@ static int32_t const EVENT_CLASS_JOIN = 0x4011; //有人申请加入班级
     contentRect.origin.y = _estimateContentRect.origin.y;
     NSMutableAttributedString* str = [self buildContentText];
     if ([_contentData subType] == EVENT_CLASS_JOIN) {
-        str.yy_color = [UIColor blueColor];
+        str.yy_color = [UIColor flatBlueColor];
     }
     YYTextLayout* layout = [YYTextLayout layoutWithContainerSize:contentRect.size text:str];
     CGSize size  = layout.textBoundingSize;

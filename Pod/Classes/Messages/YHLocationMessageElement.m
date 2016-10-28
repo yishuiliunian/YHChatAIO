@@ -69,6 +69,7 @@
     CGFloat marginWidth = 20;
     
     contentRect = CGRectCenterSubSize(contentRect, CGSizeMake(marginWidth, 0));
+    
     CGFloat maxWidth = CGRectGetWidth(contentRect) - imageSize.width - _xItemSpace;
     NSMutableAttributedString* attributeString = [[NSMutableAttributedString alloc] initWithString:YHLocationTitleJoin(_location.title, _location.label)];
     NSMutableDictionary* attributes = [NSMutableDictionary new];
@@ -82,10 +83,18 @@
     
     CGFloat height = MAX(imageSize.height + 10, size.height + marginHeight);
     CGRectDivide(_estimateContentRect, &_bubbleRect, &contentRect, height, CGRectMinYEdge);
-    CGRectDivide(_bubbleRect, &_bubbleRect, &contentRect, size.width + marginWidth+ _bubbleArrowWidth + imageSize.width + _xItemSpace, _horizontalStartEdge);
+    CGRectDivide(_bubbleRect,
+                 &_bubbleRect,
+                 &contentRect, // 占位无意义
+                 size.width + //地址长度
+                 marginWidth+ // 两边间距
+                 _bubbleArrowWidth // 箭头宽度
+                 + imageSize.width // 图片宽度
+                 + _xItemSpace, // 文字图片间距
+                 _horizontalStartEdge);
     
     contentRect = CGRectShrink(_bubbleRect, _bubbleArrowWidth, _horizontalStartEdge);
-    contentRect  = CGRectCenterSubSize(contentRect, CGSizeMake(_xItemSpace*2, 0));
+    contentRect  = CGRectCenterSubSize(contentRect, CGSizeMake(marginWidth, 0));
 
     CGRectDivide(contentRect, &_textRect, &_mapImageRect, size.width, _horizontalStartEdge);
     _textRect = CGRectCenter(_textRect, size);
