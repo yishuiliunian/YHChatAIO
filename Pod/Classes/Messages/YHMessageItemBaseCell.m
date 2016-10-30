@@ -12,6 +12,7 @@
 #import "YHAppearance.h"
 #import <QBPopupMenu/QBPopupMenu.h>
 #import "AppDelegate.h"
+
 @interface YHMessageItemBaseCell ()
 {
     UILongPressGestureRecognizer* _longPressRecognizer;
@@ -39,6 +40,18 @@
     return YES;
 }
 
+- (BOOL) gestureRecognizerShouldBegin:(UIGestureRecognizer *)gestureRecognizer
+{
+    if (gestureRecognizer == _longPressRecognizer) {
+        CGPoint point = [gestureRecognizer locationInView:self.contentView];
+        if (CGRectContainsPoint(self.bubleImageView.frame, point)) {
+            return YES;
+        } else {
+            return NO;
+        }
+    }
+    return YES;
+}
 - (void) handleLongPress:(UILongPressGestureRecognizer*)r
 {
     if (r.state == UIGestureRecognizerStateBegan) {
@@ -46,6 +59,9 @@
 
         
         NSArray* items = [self.interactDelegate messagePopUpMenus];
+        if (items.count < 1) {
+            return;
+        }
         QBPopupMenu* menu = [[QBPopupMenu alloc] initWithItems:items];
         
         UIWindow* keywindow = YHApplicationDelegate.director.keyWindow;

@@ -586,7 +586,9 @@ static CGSize kSpaceSize = {20, 14};
     NSMutableArray* items = [NSMutableArray new];
     QBPopupMenuItem* item = [[QBPopupMenuItem alloc] initWithTitle:@"删除" target:self action:@selector(deleteCurrentMessage)];
     NSArray* custom = [self customPopupMenu];
-    [items addObject:item];
+    if ([self.msg.fromAccount isEqualToString:DZActiveAuthSession.userID]) {
+        [items addObject:item];
+    }
     [items addObjectsFromArray:custom];
     return items;
 }
