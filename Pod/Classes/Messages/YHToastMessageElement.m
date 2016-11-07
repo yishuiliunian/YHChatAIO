@@ -17,6 +17,7 @@
 #import "YHClassMemberListElement.h"
 #import "YHClassMemberListViewController.h"
 #import <ChameleonFramework/Chameleon.h>
+#import "DZURLRoute.h"
 
  int32_t const EVENT_TROOP_MEMBER_KILL = 0x4001;//事件（全员） + 被踢者收系统消息
  static  int32_t  const  EVENT_TROOP_CLOSE = 0x4002;//群关闭 = 事件 （非全员，群主不用收该事件） + 所有人收到关群的系统消息(包括群主)
@@ -25,6 +26,7 @@
  static  int32_t const  EVENT_CLASS_CLOSE = 0x4010;//群关闭 = 事件 （非全员，班长不用收该事件） + 所有人收到班级关闭的系统消息（包括班长）
 static int32_t const EVENT_CLASS_JOIN = 0x4011; //有人申请加入班级
  static  int32_t const  EVENT_LOVEWALL_NEW = 0x4020;//有人表白
+static int32_t const EVENT_PASSWORD_CHANGED = 0x4040; // 提示修改密码(0x4040)
 
 @interface YHToastMessageElement () <YHCacheFetcherObsever>
 {
@@ -37,6 +39,8 @@ static int32_t const EVENT_CLASS_JOIN = 0x4011; //有人申请加入班级
     NSString* _groupName;
     NSString* _className;
     NSString* _classID;
+    
+    EventPwdChange* _pwdChange;
 }
 @end
 
@@ -125,6 +129,11 @@ static int32_t const EVENT_CLASS_JOIN = 0x4011; //有人申请加入班级
             }
             break;
         }
+            case EVENT_PASSWORD_CHANGED:
+        {
+            EventPwdChange* changed = [EventPwdChange parseFromData:[_contentData subBody] error:nil];
+            _pwdChange = changed;
+        }
     }
 }
 
@@ -154,6 +163,20 @@ static int32_t const EVENT_CLASS_JOIN = 0x4011; //有人申请加入班级
         case EVENT_CLASS_JOIN:
             output = [output stringByAppendingFormat:@"[%@]申请加入班级[%@]", _userNick, _className];
             break;
+        case EVENT_PASSWORD_CHANGED:
+       
+        {
+            NSString* action = nil;
+            if (_pwdChange.action == 0) {
+                action = @"注册";
+            } else if (_pwdChange.action ==1){
+                action = @"重置密码";
+            } else {
+                action = @"未定义操作";
+            }
+            output = [output stringByAppendingFormat:@"[%@]%@",action, _pwdChange.content];
+            break;
+        }
         default:
             output = @"系统通知，请升级版本查看";
             break;
@@ -173,7 +196,8 @@ static int32_t const EVENT_CLASS_JOIN = 0x4011; //有人申请加入班级
     contentRect = CGRectCenter(contentRect, _estimateContentRect.size);
     contentRect.origin.y = _estimateContentRect.origin.y;
     NSMutableAttributedString* str = [self buildContentText];
-    if ([_contentData subType] == EVENT_CLASS_JOIN) {
+    if ([_contentData subType] == EVENT_CLASS_JOIN ||
+        [_contentData subType] == EVENT_PASSWORD_CHANGED) {
         str.yy_color = [UIColor flatBlueColor];
     }
     YYTextLayout* layout = [YYTextLayout layoutWithContainerSize:contentRect.size text:str];
@@ -219,11 +243,14 @@ static int32_t const EVENT_CLASS_JOIN = 0x4011; //有人申请加入班级
 - (void) handleSelectedInViewController:(UIViewController *)vc
 {
     [super handleSelectedInViewController:vc];
+    NSLog(@"content %d", [_contentData subType] == EVENT_PASSWORD_CHANGED);
     if ([_contentData subType] == EVENT_CLASS_JOIN) {
         YHClassMemberListElement* ele =[[YHClassMemberListElement alloc] initWithClassID:_classID];
         ele.state  = 0;
         YHClassMemberListViewController* classVC = [[YHClassMemberListViewController alloc] initWithElement:ele];
         [self.hostViewController.navigationController pushViewController:classVC animated:YES];
+    } else if ([_contentData subType] == EVENT_PASSWORD_CHANGED) {
+        [[DZURLRoute defaultRoute] routeURL:[NSURL URLWithString:_pwdChange.URL]];
     }
 }
 
