@@ -18,6 +18,16 @@
 #import "YHClassMemberListViewController.h"
 #import <ChameleonFramework/Chameleon.h>
 #import "DZURLRoute.h"
+#import "YHUnsupportElement.h"
+#import "YHExitActionGroupElement.h"
+#import "YHTActionGroupKillElement.h"
+#import "YHTCloseActionGroupElement.h"
+#import "YHJoinActionGroupElement.h"
+#import "YHExitActionGroupElement.h"
+#import "YHTCloseClassElement.h"
+#import "YHJoinClassElement.h"
+#import "YHPasswordChangeElement.h"
+#import "YHTGotLoveElement.h"
 
  int32_t const EVENT_TROOP_MEMBER_KILL = 0x4001;//事件（全员） + 被踢者收系统消息
  static  int32_t  const  EVENT_TROOP_CLOSE = 0x4002;//群关闭 = 事件 （非全员，群主不用收该事件） + 所有人收到关群的系统消息(包括群主)
@@ -29,24 +39,48 @@ static int32_t const EVENT_CLASS_JOIN = 0x4011; //有人申请加入班级
 static int32_t const EVENT_PASSWORD_CHANGED = 0x4040; // 提示修改密码(0x4040)
 
 @interface YHToastMessageElement () <YHCacheFetcherObsever>
-{
-    Toast* _toast;
-    YYTextLayout* _textLayout;
-    
-    NSString* _userID;
-    NSString* _userNick;
-    NSString* _groupID;
-    NSString* _groupName;
-    NSString* _className;
-    NSString* _classID;
-    
-    EventPwdChange* _pwdChange;
-}
+
 @end
 
 @implementation YHToastMessageElement
 
-
++ (YHToastMessageElement*) toastElementWithMessage:(YHMessage *)message
+{
+    NSError* error;
+    
+    Toast* toast = nil;
+    if (message.type == MsgType_Toast) {
+        toast = [Toast parseFromData:message.data error:&error];
+    } else if (message.type == MsgType_Event){
+        toast  = [Event parseFromData:message.data error:&error];
+    }
+    if (!toast) {
+        return [[YHUnsupportElement alloc] initWithMsg:message];
+    }
+    switch (toast.subType) {
+        case EVENT_TROOP_MEMBER_KILL:
+            return [[YHTActionGroupKillElement alloc] initWithMsg:message];
+            break;
+        case EVENT_TROOP_CLOSE:
+            return [[YHTCloseActionGroupElement alloc] initWithMsg:message];
+            break;
+        case EVENT_TROOP_MEMBER_JOIN:
+            return [[YHJoinActionGroupElement alloc] initWithMsg:message];
+        case EVENT_TROOP_MEMBER_QUIT:
+            return [[YHExitActionGroupElement alloc] initWithMsg:message];
+        case EVENT_CLASS_CLOSE:
+            return [[YHTCloseClassElement alloc] initWithMsg:message];
+        case EVENT_CLASS_JOIN:
+            return [[YHJoinClassElement alloc] initWithMsg:message];
+        case EVENT_LOVEWALL_NEW:
+            return [[YHTGotLoveElement alloc] initWithMsg:message];
+        case EVENT_PASSWORD_CHANGED:
+            return [[YHPasswordChangeElement alloc] initWithMsg:message];
+        default:
+            return [[YHUnsupportElement alloc] initWithMsg:message];
+    }
+    
+}
 - (instancetype) init
 {
     self = [super init];
@@ -57,201 +91,17 @@ static int32_t const EVENT_PASSWORD_CHANGED = 0x4040; // 提示修改密码(0x40
     return self;
 }
 
-- (void) commonCacheFetchUID:(NSString *)modelId withModel:(id)model
-{
-    
-    NSLog(@"Get Current Class %@",__SEL_CLASS__);
-    SUPER_COMMON_CACHE(modelId, model);
-   
-    void(^ReloadUI)(void) = ^(void) {
-        CGFloat height;
-        [self prepareLayouts:&height];
-        self.cellHeight = height;
-        [self reloadUI];
-    };
-    if ([_userID isEqualToString:modelId]) {
-        UserProfile* userProfile = (UserProfile*)model;
-        _userNick = userProfile.nick.length ? userProfile.nick : _userID;
-        ReloadUI();
-        [self notifyReadableReady];
-    } else if ([_groupID isEqualToString:modelId]) {
-        ActionGroup* actionGroup = (ActionGroup*)model;
-        _groupName = actionGroup.groupName.length ? actionGroup.groupName : _groupID;
-        [self notifyReadableReady];
-    } else if ([_classID isEqualToString:modelId] && [model isKindOfClass:[ClassInfo class]]) {
-        ClassInfo* classInfo = (ClassInfo*)model;
-        _className = classInfo.clazzName?:_groupID;
-        [self notifyReadableReady];
-    }
-}
-- (NSAttributedString*) readableContentText
-{
-    if ([_textLayout.text isKindOfClass:[NSAttributedString class]]) {
-        return [[NSAttributedString alloc] initWithString:(_textLayout.text.string.length?_textLayout.text.string:@"")];
-     } else
-     {
-         return [[NSAttributedString alloc] initWithString:@""];
-     }
-}
-
 - (void) buildMsgContent
 {
     [super buildMsgContent];
     NSError* error;
-    _contentData = (id<YHToastValueData>)[Toast parseFromData:self.msg.data error:&error];
+    _toast = [Toast parseFromData:self.msg.data error:&error];
     if (error) {
         DDLogError(@"%@",error);
     }
-    switch ([_contentData subType]) {
-        case EVENT_TROOP_MEMBER_JOIN:
-            case EVENT_TROOP_MEMBER_KILL:
-            case EVENT_TROOP_MEMBER_QUIT:
-        {
-            EventGroupChange* change = [EventGroupChange parseFromData:[_contentData subBody] error:nil];
-            _userID = _userNick = change.userName;
-            _groupID =_groupName = change.groupId;
-            [[YHCommonCache shareCache] fetchUserProfile:_userID observer:self];
-            [[YHCommonCache shareCache] fetchActionGroup:_groupID observer:self];
-            break;
-        }
-            case EVENT_CLASS_JOIN:
-            case EVENT_CLASS_CLOSE:
-        {
-            EventClassChange* change = [EventClassChange parseFromData:[_contentData subBody] error:nil];
-            _userID = _userNick = change.userName;
-            _classID =  change.classId;
-            _className  = change.clazzName;
-            if (_userID.length) {
-                [[YHCommonCache shareCache] fetchUserProfile:_userNick observer:self];
-            }
-            if (_classID.length && _className.length == 0) {
-                [[YHCommonCache shareCache] fetchClassRoomProfile:_classID observer:self];
-            }
-            break;
-        }
-            case EVENT_PASSWORD_CHANGED:
-        {
-            EventPwdChange* changed = [EventPwdChange parseFromData:[_contentData subBody] error:nil];
-            _pwdChange = changed;
-        }
-    }
 }
 
-- (NSMutableAttributedString*) buildContentText
-{
-    UIFont* font = [UIFont systemFontOfSize:14];
-    NSString* output = @"";
-    switch ([_contentData subType]) {
-        case EVENT_TROOP_MEMBER_KILL:
-            output = [output stringByAppendingFormat:@"成员[%@]被移出了群[%@]", _userNick, _groupName];
-            break;
-        case EVENT_TROOP_CLOSE:
-            output = [output stringByAppendingFormat:@"群[%@]已关闭", _groupName];
-            break;
-        case EVENT_TROOP_MEMBER_JOIN:
-            output = [output stringByAppendingFormat:@"[%@]加入了群[%@]", _userNick,_groupName];
-            break;
-        case EVENT_TROOP_MEMBER_QUIT:
-            output = [output stringByAppendingFormat:@"[%@]退出了群[%@]",_userNick, _groupName];
-            break;
-        case EVENT_CLASS_CLOSE:
-            output = [output stringByAppendingFormat:@"班级[%@]已经解散", _className];
-            break;
-        case EVENT_LOVEWALL_NEW:
-            output = [output stringByAppendingFormat:@"有人向您表白了，啦啦啦"];
-            break;
-        case EVENT_CLASS_JOIN:
-            output = [output stringByAppendingFormat:@"[%@]申请加入班级[%@]", _userNick, _className];
-            break;
-        case EVENT_PASSWORD_CHANGED:
-       
-        {
-            NSString* action = nil;
-            if (_pwdChange.action == 0) {
-                action = @"注册";
-            } else if (_pwdChange.action ==1){
-                action = @"重置密码";
-            } else {
-                action = @"未定义操作";
-            }
-            output = [output stringByAppendingFormat:@"[%@]%@",action, _pwdChange.content];
-            break;
-        }
-        default:
-            output = @"系统通知，请升级版本查看";
-            break;
-    }
-    YYTextBorder* boarder = [YYTextBorder borderWithFillColor:[UIColor flatWhiteColorDark] cornerRadius:4];
-    boarder.insets = UIEdgeInsetsMake(-2, -2, -3, -2);
-    NSMutableAttributedString* mAStr = [[NSMutableAttributedString alloc] initWithString:output];
-    mAStr.yy_font = font;
-    mAStr.yy_color = [UIColor whiteColor];
-    mAStr.yy_textBackgroundBorder = boarder;
-    return mAStr;
-}
-- (void) prepareLayouts:(CGFloat *)cellHeight
-{
-    [super prepareLayouts:cellHeight];
-    CGRect contentRect =  [UIScreen mainScreen].bounds;
-    contentRect = CGRectCenter(contentRect, _estimateContentRect.size);
-    contentRect.origin.y = _estimateContentRect.origin.y;
-    NSMutableAttributedString* str = [self buildContentText];
-    if ([_contentData subType] == EVENT_CLASS_JOIN ||
-        [_contentData subType] == EVENT_PASSWORD_CHANGED) {
-        str.yy_color = [UIColor flatBlueColor];
-    }
-    YYTextLayout* layout = [YYTextLayout layoutWithContainerSize:contentRect.size text:str];
-    CGSize size  = layout.textBoundingSize;
-    _textLayout = layout;
-    size.height += 4;
-    size.width += 4;
-    *cellHeight += size.height;
-    
-    CGRect restRect;
-    CGRectDivide(contentRect, &_toastRect, &restRect, size.height, CGRectMinYEdge);
-    _avatarRect = CGRectZero;
-    _bubbleRect = CGRectZero;
-}
 
-- (void) layoutCell:(YHToastMessageCell *)cell
-{
-    [super layoutCell:cell];
-    cell.textContentLabel.frame = _toastRect;
-}
-- (void) willBeginHandleResponser:(YHToastMessageCell*)cell
-{
-    [super willBeginHandleResponser:cell];
-    cell.textContentLabel.textLayout = _textLayout;
-    cell.textContentLabel.textAlignment = NSTextAlignmentCenter;
-}
 
-- (void) didBeginHandleResponser:(YHToastMessageCell *)cell
-{
-    [super didBeginHandleResponser:cell];
-}
-
-- (void) willRegsinHandleResponser:(YHToastMessageCell *)cell
-{
-    [super willRegsinHandleResponser:cell];
-}
-
-- (void) didRegsinHandleResponser:(YHToastMessageCell *)cell
-{
-    [super didRegsinHandleResponser:cell];
-}
-
-- (void) handleSelectedInViewController:(UIViewController *)vc
-{
-    [super handleSelectedInViewController:vc];
-    NSLog(@"content %d", [_contentData subType] == EVENT_PASSWORD_CHANGED);
-    if ([_contentData subType] == EVENT_CLASS_JOIN) {
-        YHClassMemberListElement* ele =[[YHClassMemberListElement alloc] initWithClassID:_classID];
-        ele.state  = 0;
-        YHClassMemberListViewController* classVC = [[YHClassMemberListViewController alloc] initWithElement:ele];
-        [self.hostViewController.navigationController pushViewController:classVC animated:YES];
-    } else if ([_contentData subType] == EVENT_PASSWORD_CHANGED) {
-        [[DZURLRoute defaultRoute] routeURL:[NSURL URLWithString:_pwdChange.URL]];
-    }
-}
 
 @end

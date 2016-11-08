@@ -32,7 +32,6 @@
 #import "YHChatClassElement.h"
 #import "YHSystemChatElement.h"
 #import "YHToastMessageElement.h"
-#import "YHEventMessageElement.h"
 #import "YHAppearance.h"
 #import "YHChatHotRoomElement.h"
 #import "DZFunScene.h"

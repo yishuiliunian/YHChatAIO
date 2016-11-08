@@ -32,7 +32,6 @@
 #import "YHChatClassElement.h"
 #import "YHSystemChatElement.h"
 #import "YHToastMessageElement.h"
-#import "YHEventMessageElement.h"
 #import "YHImageMessageElement.h"
 #import "YHLocationMessageElement.h"
 #import "YHAudioMessageElement.h"
@@ -75,9 +74,9 @@ static CGSize kSpaceSize = {20, 14};
     } else if (message.type == MsgType_Location) {
         item = [[YHLocationMessageElement alloc] initWithMsg:message];
     } else if (message.type == MsgType_Toast) {
-        item  = [[YHToastMessageElement alloc] initWithMsg:message];
+        item  = [YHToastMessageElement toastElementWithMessage:message];
     } else if(message.type == MsgType_Event) {
-        item = [[YHEventMessageElement alloc] initWithMsg:message];
+        item = [YHToastMessageElement toastElementWithMessage:message];
     }else {
         item = [[YHUnsupportElement alloc] initWithMsg:message];
     }

@@ -10,17 +10,13 @@
 #import "YHMessageItemBaseElement.h"
 #import "YHTextMessageElement.h"
 
-@protocol YHToastValueData <NSObject>
-/// 子类型
-@property(nonatomic, readwrite) int32_t subType;
-
-/// 子内容
-@property(nonatomic, readwrite, copy, null_resettable) NSData *subBody;
-@end
 
 @interface YHToastMessageElement : YHMessageItemBaseElement
 {
-    id<YHToastValueData> _contentData;
-    CGRect _toastRect;
+    
+    @protected
+    Toast* _toast;
 }
+
++ (YHToastMessageElement*) toastElementWithMessage:(YHMessage*)message;
 @end
