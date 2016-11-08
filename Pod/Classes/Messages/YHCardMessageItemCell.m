@@ -25,6 +25,7 @@
     _actionBackgroundView.layer.cornerRadius = 4;
     _gotoLabel.textColor = [UIColor flatBlueColor];
     _gotoLabel.textAlignment = NSTextAlignmentRight;
+    _actionDetailLabel.userInteractionEnabled = NO;
     //
     return self;
 }
