@@ -54,17 +54,19 @@
     [super prepareLayouts:cellHeight];
     _avatarRect = CGRectZero;
     _bubbleRect = CGRectZero;
-    CGRect contentRect =  [UIScreen mainScreen].bounds;
+    CGRect contentRect =  _estimateContentRect;
+    contentRect.origin.x = 0;
+    contentRect.size.width = CGRectLoadViewFrame.size.width;
     contentRect.size.height = CGFLOAT_MAX;
     
     contentRect.size.width = CGRectLoadViewFrame.size.width;
     
-    CGSize subSize = {20, 10};
+    CGSize subSize = {30, 20};
     contentRect = CGRectCenterSubSize(contentRect, subSize);
     _toastBackgroundRect = contentRect;
     _toastBackgroundRect.size.height = subSize.height;
 
-    contentRect = CGRectCenterSubSize(contentRect, subSize);
+    contentRect = CGRectCenterSubSize(contentRect, CGSizeMake(20, 15));
     
     NSMutableAttributedString* mAstr = [self buildToastConentString];
     mAstr.yy_font = [UIFont systemFontOfSize:14];
@@ -77,7 +79,7 @@
     
     CGFloat space = 5;
     contentRect = CGRectShrink(contentRect, 5, CGRectMinYEdge);
-    CGFloat gotoHeight = 30;
+    CGFloat gotoHeight = 20;
     
     CGRectDivide(contentRect, &_toastGotoRect, &contentRect, gotoHeight, CGRectMinYEdge);
     _toastBackgroundRect.size.height += gotoHeight;

@@ -64,21 +64,30 @@ static CGSize kSpaceSize = {20, 14};
 
 + (YHMessageItemBaseElement*) elementWithYHMessage:(YHMessage*)message
 {
+    
     YHMessageItemBaseElement* item;
-    if (message.type == MsgType_Text) {
-        item = [[YHTextMessageElement alloc] initWithMsg:message];
-    } else if(message.type == MsgType_Image) {
-        item = [[YHImageMessageElement alloc] initWithMsg:message];
-    } else if (message.type == MsgType_Voice) {
-        item = [[YHAudioMessageElement alloc] initWithMsg:message];
-    } else if (message.type == MsgType_Location) {
-        item = [[YHLocationMessageElement alloc] initWithMsg:message];
-    } else if (message.type == MsgType_Toast) {
-        item  = [YHToastMessageElement toastElementWithMessage:message];
-    } else if(message.type == MsgType_Event) {
-        item = [YHToastMessageElement toastElementWithMessage:message];
-    }else {
+    @try {
+        if (message.type == MsgType_Text) {
+            item = [[YHTextMessageElement alloc] initWithMsg:message];
+        } else if(message.type == MsgType_Image) {
+            item = [[YHImageMessageElement alloc] initWithMsg:message];
+        } else if (message.type == MsgType_Voice) {
+            item = [[YHAudioMessageElement alloc] initWithMsg:message];
+        } else if (message.type == MsgType_Location) {
+            item = [[YHLocationMessageElement alloc] initWithMsg:message];
+        } else if (message.type == MsgType_Toast) {
+            item  = [YHToastMessageElement toastElementWithMessage:message];
+        } else if(message.type == MsgType_Event) {
+            item = [YHToastMessageElement toastElementWithMessage:message];
+        }else {
+            item = [[YHUnsupportElement alloc] initWithMsg:message];
+        }
+    } @catch (NSException *exception) {
         item = [[YHUnsupportElement alloc] initWithMsg:message];
+    } @finally {
+        if (!item) {
+            item = [[YHUnsupportElement alloc] initWithMsg:message];
+        }
     }
     return item;
 }
@@ -157,7 +166,7 @@ static CGSize kSpaceSize = {20, 14};
 
 - (void) buildMsgContent
 {
-    
+    self.nickName = _msg.fromAccount;
 }
 - (instancetype) initWithMsg:(YHMessage*)msg
 {
@@ -269,6 +278,8 @@ static CGSize kSpaceSize = {20, 14};
         *cellHeight += kNickHeight;
         _nickRect = CGRectShrink(_nickRect, _bubbleArrowWidth, _horizontalStartEdge);
         *cellHeight -=kSpaceSize.height/2;
+    } else {
+        _nickRect = CGRectZero;
     }
     
     contentRect = CGRectShrink(contentRect, kContentXMargin, _horizontalEndEdge);
@@ -317,6 +328,7 @@ static CGSize kSpaceSize = {20, 14};
         _bottomIndicatorRect = bottomRect;
         self.cellHeight += 30;
     }
+    self.cellHeight += 8;
 }
 
 - (NSAttributedString*) indicatorStringWithText:(NSString*)text
@@ -420,7 +432,7 @@ static CGSize kSpaceSize = {20, 14};
     if ([model isKindOfClass:[UserProfile class]]) {
         UserProfile* userProfile = (UserProfile*)model;
         _faceURL = [NSURL URLWithString:userProfile.faceURL];
-        _nickName = userProfile.nick;
+        _nickName = userProfile.nick.length ? userProfile.nick : userProfile.userName;
         [self loadUI];
         [self notifyReadableReady];
     }
