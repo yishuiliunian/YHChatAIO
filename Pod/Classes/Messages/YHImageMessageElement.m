@@ -137,7 +137,11 @@
     MWPhoto* photo = [MWPhoto photoWithURL:url];
     [photos addObject:photo];
     MWPhotoBrowser* browser = [[MWPhotoBrowser alloc] initWithPhotos:photos];
-    [vc.navigationController pushViewController:browser animated:YES];
+    UINavigationController* nav = [[UINavigationController alloc] initWithRootViewController:browser];
+    
+    [vc.navigationController presentViewController:nav animated:YES completion:^{
+        
+    }];;
 }
 - (void) sendOperationDidStart:(YHSendMessageOperation *)op
 {
