@@ -20,6 +20,7 @@
 #import "YHClassMemberListViewController.h"
 #import <ChameleonFramework/Chameleon.h>
 #import "DZURLRoute.h"
+#import "YHURLRouteDefines.h"
 
 @implementation YHJoinClassElement
 - (void) buildMsgContent
@@ -69,10 +70,10 @@
 
 - (void) handleSelectedInViewController:(UIViewController *)vc
 {
-        YHClassMemberListElement* ele =[[YHClassMemberListElement alloc] initWithClassID:_classChange.classId];
-        ele.state  = 0;
-        YHClassMemberListViewController* classVC = [[YHClassMemberListViewController alloc] initWithElement:ele];
-        [self.hostViewController.navigationController pushViewController:classVC animated:YES];
+    NSMutableDictionary* params = [NSMutableDictionary new];
+    [params setValue:_classChange.classId forKey:kYHURLQueryParamterUID];
+    NSURL* location = DZURLRouteQueryLink(kYHURLYohooClassAuth, params);
+    [[DZURLRoute defaultRoute] routeURL:location];
 }
 
 @end
