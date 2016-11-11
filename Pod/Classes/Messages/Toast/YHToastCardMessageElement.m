@@ -70,7 +70,7 @@
     
     NSMutableAttributedString* mAstr = [self buildToastConentString];
     mAstr.yy_font = [UIFont systemFontOfSize:14];
-    mAstr.yy_alignment = NSTextAlignmentCenter;
+    mAstr.yy_alignment = NSTextAlignmentLeft;
     _toastContentTextLayout = [YYTextLayout layoutWithContainerSize:contentRect.size text:mAstr];
     
     CGRectDivide(contentRect, &_toastContentRect, &contentRect, _toastContentTextLayout.textBoundingSize.height, CGRectMinYEdge);
