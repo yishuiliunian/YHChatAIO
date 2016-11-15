@@ -70,9 +70,8 @@
 
 - (void) handleSelectedInViewController:(UIViewController *)vc
 {
-    NSMutableDictionary* params = [NSMutableDictionary new];
-    [params setValue:_classChange.classId forKey:kYHURLQueryParamterUID];
-    NSURL* location = DZURLRouteQueryLink(kYHURLYohooClassAuth, params);
+
+    NSURL* location = [NSURL URLWithString:_classChange.URL];
     [[DZURLRoute defaultRoute] routeURL:location];
 }
 
