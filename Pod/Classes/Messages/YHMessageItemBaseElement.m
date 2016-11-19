@@ -164,6 +164,7 @@ static CGSize kSpaceSize = {20, 14};
     return [[NSAttributedString alloc] initWithString:content];
 }
 
+
 - (void) buildMsgContent
 {
     self.nickName = _msg.fromAccount;
