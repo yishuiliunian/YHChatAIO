@@ -77,6 +77,9 @@
     NSMutableArray* msgs = [NSMutableArray new];
     for (YHMessage* msg  in messages) {
         if ([msg.fromAccount isEqualToString:self.sessionInfo.uuid]) {
+            if (msg.msgID == 0) {
+                
+            }
             [msgs addObject:msg];
         }
     }
@@ -263,11 +266,16 @@
         return;
     }
     NSMutableArray* insertRows = [NSMutableArray new];
+    BOOL insertSection = NO;
     for (YHMessage* message in serverMessages) {
         message.isRead = YES;
         YHMessageItemBaseElement* ele = [self __elementWithYHMessage:message];
         if (![_dataController  containsObject:ele]) {
+            NSInteger sectionCount = _dataController.numberOfSections;
             EKIndexPath path = [_dataController addObject:ele];
+            if (sectionCount != _dataController.numberOfSections) {
+                insertSection = YES;
+            }
             [insertRows addObject:[NSIndexPath indexPathForRow:path.row inSection:path.section]];
         }
     }
@@ -276,7 +284,15 @@
     }
     @try {
         [self.tableView beginUpdates];
-        [self.tableView insertRowsAtIndexPaths:insertRows withRowAnimation:UITableViewRowAnimationNone];
+        if (insertSection) {
+            NSMutableIndexSet* indexSet = [NSMutableIndexSet new];
+            for (NSIndexPath* index in insertRows) {
+                [indexSet addIndex:index.section];
+            }
+            [self.tableView insertSections:indexSet withRowAnimation:UITableViewRowAnimationBottom];
+        } else {
+            [self.tableView insertRowsAtIndexPaths:insertRows withRowAnimation:UITableViewRowAnimationBottom];
+        }
         [self.tableView endUpdates];
         NSIndexPath* maxPath = nil;
         for (NSIndexPath* path  in insertRows) {
@@ -306,10 +322,8 @@
     } @catch (NSException *exception) {
         [self.tableView reloadData];
     } @finally {
-        
-    }
 
-    
+    }
 }
 - (void) handleServerMessages:(NSArray *)messages
 {
@@ -321,7 +335,14 @@
         }
         @synchronized (self) {
             NSMutableArray* msgs = [NSMutableArray arrayWithArray:_serverMessageCache];
-            [msgs addObjectsFromArray:messages];
+            for (YHMessage* msg in messages) {
+                if (![msgs containsObject:msg]) {
+                    [msgs addObject:msg];
+                } else
+                {
+                    NSLog(@"重复了");
+                }
+            }
             _serverMessageCache = msgs;
         }
     });
