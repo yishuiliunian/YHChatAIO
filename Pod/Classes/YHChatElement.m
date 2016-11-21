@@ -188,7 +188,7 @@
     }
     
     message.bShowTime = [YHActiveDBConnection checkWillShowTime:message];
-    [YHActiveDBConnection.dbhelper insertToDB:message];
+    [YHActiveDBConnection updateMessage:message];
     YHMessageItemBaseElement* element = [self __elementWithYHMessage:message];
     [[YHMessageSendManager shareManager] sendMessage:message withDelegate:element];
     
@@ -418,12 +418,14 @@
         NSIndexPath* indexpath = [_dataController indexPathOfObject:ele];
         if (indexpath && indexpath.row!= NSNotFound) {
             [_dataController removeObjectAtIndexPath:EKIndexPathFromNS(indexpath)];
+            [self.tableView beginUpdates];
             if (indexpath.row == 0 && [_dataController numberAtSection:indexpath.section] == 0) {
                 [self.tableView deleteSections:[NSIndexSet indexSetWithIndex:indexpath.section] withRowAnimation:UITableViewRowAnimationAutomatic];
             } else {
                 [self.tableView deleteRowsAtIndexPaths:@[indexpath] withRowAnimation:UITableViewRowAnimationAutomatic];
-                [YHActiveDBConnection.dbhelper deleteToDB:ele.msg];
             }
+            [YHActiveDBConnection.dbhelper deleteToDB:ele.msg];
+            [self.tableView endUpdates];
         }
     }
 }
