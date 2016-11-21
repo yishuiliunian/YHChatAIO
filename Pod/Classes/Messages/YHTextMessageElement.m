@@ -157,8 +157,8 @@
                 }
             }
         }
-        self.msg.isCheckedDetail = YES;
-        [YHActiveDBConnection updateMessage:self.msg];
+        weakSelf.msg.isCheckedDetail = YES;
+        [YHActiveDBConnection updateMessage:weakSelf.msg];
     });
 }
 

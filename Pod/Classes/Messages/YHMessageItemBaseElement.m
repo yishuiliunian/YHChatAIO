@@ -177,6 +177,9 @@ static CGSize kSpaceSize = {20, 14};
     }
 
     _msg = msg;
+    if (_msg.msgStatus != YHMessageStatueNormal) {
+        
+    }
     _sendByMe = [DZActiveAuthSession.userID isEqualToString:_msg.fromAccount];
     if (msg.fromType == UserType_GroupUser || msg.fromType == UserType_ChatroomUser || msg.fromType == UserType_ClassUser) {
         MsgExt* ext = [MsgExt parseFromData:_msg.extention error:nil];
@@ -598,9 +601,7 @@ static CGSize kSpaceSize = {20, 14};
     NSMutableArray* items = [NSMutableArray new];
     QBPopupMenuItem* item = [[QBPopupMenuItem alloc] initWithTitle:@"删除" target:self action:@selector(deleteCurrentMessage)];
     NSArray* custom = [self customPopupMenu];
-    if ([self.msg.fromAccount isEqualToString:DZActiveAuthSession.userID]) {
-        [items addObject:item];
-    }
+    [items addObject:item];
     [items addObjectsFromArray:custom];
     return items;
 }
