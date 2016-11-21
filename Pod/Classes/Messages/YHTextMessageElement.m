@@ -20,7 +20,7 @@
 #import <TOWebViewController.h>
 #import "AppDelegate.h"
 
-@interface YHTextMessageElement() <YHLinkedTextParserResponser>
+@interface YHTextMessageElement()
 {
     UIFont* _font;
     CGRect _textRect;
@@ -75,7 +75,7 @@
     
     [attributeString yy_setAttributes:attributes];
     [[DZEmojiMapper mapper].textEmojiParser parseText:attributeString selectedRange:NULL];
-    [[YHLinkedTextParser new] parseText:attributeString responser:self];
+    [YHLinkedTextParser parseText:attributeString];
     [attributeString yy_setLineSpacing:3 range:NSMakeRange(0, attributeString.length)];
     YYTextLayout* layout = [YYTextLayout layoutWithContainerSize:CGSizeMake(maxWidth, CGFLOAT_MAX) text:attributeString];
     CGSize size  = layout.textBoundingSize;
@@ -168,37 +168,4 @@
       [self.funScene startWithImage:image];
 }
 
-- (void) linedTextHandleEmail:(NSString *)text
-{
-    
-}
-
-- (void)  linedTextHandlePhone:(NSString *)text
-{
-    [YHApplicationDelegate.director callPhone:text];
-}
-
-- (void) linedTextHandleURL:(NSString *)text
-{
-    TOWebViewController *webViewController = [[TOWebViewController alloc] initWithURL:[NSURL URLWithString:text]];
-    [self.hostViewController.navigationController pushViewController:webViewController animated:YES];
-}
-
-- (void) callPhone:(NSString*) phone
-{
-    NSString* msg =  [NSString stringWithFormat:@"您将给%@拨打电话", phone];
-    UIAlertController* alert = [UIAlertController alertControllerWithTitle:@"拨打电话" message:msg preferredStyle:UIAlertControllerStyleAlert];
-    [alert addAction:[UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
-        [alert dismissViewControllerAnimated:YES completion:nil];
-    }]];
-    [alert addAction:[UIAlertAction actionWithTitle:@"拨打" style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
-        NSString* phoneURL = [NSString stringWithFormat:@"tel://%@", phone];
-        [[UIApplication sharedApplication] openURL:[NSURL URLWithString:phoneURL]];
-    }]];
-    
-    
-    [self.hostViewController.navigationController presentViewController:alert animated:YES completion:^{
-        
-    }];
-}
 @end
