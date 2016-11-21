@@ -143,12 +143,22 @@
             [eles addObject:ele];
         }
     }
-        [self.tableView beginUpdates];
-        NSArray* indexs = [_dataController  insertHeaderObjects:eles atSection:0];
-        if (indexs.count) {
-            [self.tableView insertRowsAtIndexPaths:indexs withRowAnimation:UITableViewRowAnimationAutomatic];
+    [self.tableView beginUpdates];
+    NSArray* indexs = [_dataController  insertHeaderObjects:eles atSection:0];
+    if (indexs.count) {
+        [self.tableView insertRowsAtIndexPaths:indexs withRowAnimation:UITableViewRowAnimationTop];
+    }
+    NSIndexPath* max = nil;
+    for (NSIndexPath* index in indexs) {
+        if (max == nil) {
+            max = index;
         }
-        [self.tableView endUpdates];
+        max = index.row > max.row ? index : max;
+    }
+    if (max && max.row != NSNotFound && max.section != NSNotFound   ) {
+        [self.tableView scrollToRowAtIndexPath:max atScrollPosition:UITableViewScrollPositionBottom animated:YES];
+    }
+    [self.tableView endUpdates];
 
     [self.tableView.mj_header endRefreshing];
 }

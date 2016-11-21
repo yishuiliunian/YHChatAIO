@@ -167,7 +167,14 @@ static CGSize kSpaceSize = {20, 14};
 
 - (void) buildMsgContent
 {
-    self.nickName = _msg.fromAccount;
+    UserProfile* profile = [[YHCommonCache shareCache] memoryFetchUserProfile:_userUUID];
+    
+    if (profile) {
+        self.nickName = profile.readNick;
+        self.faceURL = DZ_STR_2_URL(profile.faceURL);
+    } else {
+        self.nickName = _userUUID;
+    }
 }
 - (instancetype) initWithMsg:(YHMessage*)msg
 {
@@ -177,9 +184,7 @@ static CGSize kSpaceSize = {20, 14};
     }
 
     _msg = msg;
-    if (_msg.msgStatus != YHMessageStatueNormal) {
-        
-    }
+
     _sendByMe = [DZActiveAuthSession.userID isEqualToString:_msg.fromAccount];
     if (msg.fromType == UserType_GroupUser || msg.fromType == UserType_ChatroomUser || msg.fromType == UserType_ClassUser) {
         MsgExt* ext = [MsgExt parseFromData:_msg.extention error:nil];
