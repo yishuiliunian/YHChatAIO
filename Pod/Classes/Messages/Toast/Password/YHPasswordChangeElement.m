@@ -20,7 +20,9 @@
 #import "YHClassMemberListViewController.h"
 #import <ChameleonFramework/Chameleon.h>
 #import "DZURLRoute.h"
-
+#import "YHCardMessageItemCell.h"
+#import "YHCoreDB.h"
+#import "DZAuthSession.h"
 
 @interface YHPasswordChangeElement()
 {
@@ -45,6 +47,7 @@
     }
     NSString* output  = [NSString stringWithFormat:@"[%@]%@",action, _pwdChange.content];
     NSMutableAttributedString* mAStr = [[NSMutableAttributedString alloc] initWithString:output];
+    mAStr.yy_color = [UIColor colorWithHexString:@"5a5f6b"];
     return mAStr;
 }
 
@@ -53,11 +56,19 @@
     return @"点击去修改";
 }
 
+- (void) willBeginHandleResponser:(YHCardMessageItemCell *)responser
+{
+    [super willBeginHandleResponser:responser];
+}
 
 - (void) handleSelectedInViewController:(UIViewController *)vc
 {
- 
-        [[DZURLRoute defaultRoute] routeURL:[NSURL URLWithString:_pwdChange.URL]];
+    if (!self.msg.isCheckedDetail) {
+        self.msg.isCheckedDetail = YES;
+        [YHActiveDBConnection updateMessage:self.msg];
+    }
+
+    [[DZURLRoute defaultRoute] routeURL:[NSURL URLWithString:_pwdChange.URL]];
 }
 
 

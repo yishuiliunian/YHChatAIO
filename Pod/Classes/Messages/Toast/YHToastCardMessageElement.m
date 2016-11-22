@@ -49,6 +49,12 @@
 {
     return @"点击查看详情";
 }
+
+- (NSAttributedString*) readableContentText
+{
+    return [_toastContentTextLayout.text copy];
+}
+
 - (void) prepareLayouts:(CGFloat *)cellHeight
 {
     [super prepareLayouts:cellHeight];

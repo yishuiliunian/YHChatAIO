@@ -23,8 +23,9 @@
     INIT_SUBVIEW(self.contentView, YYLabel, _actionDetailLabel);
     _actionBackgroundView.backgroundColor = [UIColor whiteColor];
     _actionBackgroundView.layer.cornerRadius = 4;
-    _gotoLabel.textColor = [UIColor flatBlueColorDark];
+    _gotoLabel.textColor = [UIColor colorWithHexString:@"0773ff"];
     _gotoLabel.textAlignment = NSTextAlignmentRight;
+    _actionDetailLabel.textColor = [UIColor colorWithHexString:@"5a5f6b"];
     _actionDetailLabel.userInteractionEnabled = NO;
     //
     return self;

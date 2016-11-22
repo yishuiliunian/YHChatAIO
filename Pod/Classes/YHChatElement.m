@@ -129,6 +129,12 @@
 - (void) handleLoadOldMessage
 {
     __block int64_t min = INT64_MAX;
+    CGFloat offsetY = self.tableView.contentOffset.y;
+    YHMessageItemBaseElement* ele = nil;
+    if (_dataController.numbersOfObject >0) {
+       ele =  [_dataController objectAtIndexPath:EKCreateIndexPath(0, 0)];
+    }
+    
     [_dataController map:^(id e) {
         if ([e isKindOfClass:[YHMessageItemBaseElement class]]) {
             YHMessageItemBaseElement* ele = (YHMessageItemBaseElement*)e;
@@ -141,25 +147,25 @@
         YHMessageItemBaseElement* ele = [self __elementWithYHMessage:msg];
         if (ele) {
             [eles addObject:ele];
+            offsetY += ele.cellHeight;
         }
     }
+    [UIView setAnimationsEnabled:NO];
     [self.tableView beginUpdates];
     NSArray* indexs = [_dataController  insertHeaderObjects:eles atSection:0];
     if (indexs.count) {
-        [self.tableView insertRowsAtIndexPaths:indexs withRowAnimation:UITableViewRowAnimationTop];
+        [self.tableView insertRowsAtIndexPaths:indexs withRowAnimation:UITableViewRowAnimationNone];
     }
-    NSIndexPath* max = nil;
-    for (NSIndexPath* index in indexs) {
-        if (max == nil) {
-            max = index;
-        }
-        max = index.row > max.row ? index : max;
-    }
-    if (max && max.row != NSNotFound && max.section != NSNotFound   ) {
-        [self.tableView scrollToRowAtIndexPath:max atScrollPosition:UITableViewScrollPositionBottom animated:YES];
-    }
-    [self.tableView endUpdates];
 
+    [self.tableView endUpdates];
+    [UIView setAnimationsEnabled:YES];
+    if (ele) {
+        NSIndexPath* indexpath = [_dataController indexPathOfObject:ele];
+        CGRect rect = [self.tableView rectForRowAtIndexPath:indexpath];
+        [self.tableView setContentOffset:CGPointMake(0, offsetY)];
+        [self.tableView setContentOffset:CGPointMake(0, offsetY)];
+    }
+    
     [self.tableView.mj_header endRefreshing];
 }
 
