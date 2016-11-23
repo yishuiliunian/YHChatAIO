@@ -12,6 +12,7 @@
 @interface YHTextMessageElement : YHMessageItemBaseElement
 {
     @protected
-    NSString* _text;;
+    NSString* _text;
 }
+@property (nonatomic, strong, readonly) NSString* text;
 @end

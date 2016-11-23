@@ -24,6 +24,7 @@
 #import <YHNetCore.h>
 #import "YHReportRequest.h"
 #import "YHTextViewInputViewController.h"
+#import "YHAppConfig.h"
 @interface YHChatHotRoomElement () <YHCacheFetcherObsever>
 
 @end
@@ -114,10 +115,20 @@
 {
     
     NSMutableArray* items = [NSMutableArray new];
-        KxMenuItem* firend = [KxMenuItem menuItem:@"举报房间" image:DZCachedImageByName(@"ic_action_report") target:self action:@selector(reportThisRoom)];
-        [items addObject:firend];
-        KxMenuItem* exit = [KxMenuItem menuItem:@"退出房间" image:DZCachedImageByName(@"ic_action_exit") target:self action:@selector(exitThisRoom)];
-        [items addObject:exit];
+    KxMenuItem* firend = [KxMenuItem menuItem:@"举报房间" image:DZCachedImageByName(@"ic_action_report") target:self action:@selector(reportThisRoom)];
+    [items addObject:firend];
+    KxMenuItem* exit = [KxMenuItem menuItem:@"退出房间" image:DZCachedImageByName(@"ic_action_exit") target:self action:@selector(exitThisRoom)];
+    [items addObject:exit];
+    
+#ifdef MESSAGE_TEST
+    if (self.isAutoSending) {
+        KxMenuItem* close = [KxMenuItem menuItem:@"关闭自动发送" image:DZCachedImageByName(@"ic_action_exit") target:self action:@selector(stopAutoSend)];
+        [items addObject:close];
+    } else {
+        KxMenuItem* close = [KxMenuItem menuItem:@"开始自动发送" image:DZCachedImageByName(@"ic_action_exit") target:self action:@selector(startAutoSend)];
+        [items addObject:close];
+    }
+#endif
     
     CGRect rect = CGRectMake(0, 0, 0, 0);
     rect.origin.x = CGRectGetWidth(self.env.view.bounds) - 20;

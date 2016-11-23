@@ -12,7 +12,14 @@
 #import "YHMessageItemBaseElement.h"
 #import "YHMessage.h"
 #import "DZAIOTableElement.h"
+#import "YHAppConfig.h"
+
 @interface YHChatElement : DZAIOTableElement
+#ifdef MESSAGE_TEST
+@property (nonatomic, assign, readonly) BOOL isAutoSending;
+- (void) startAutoSend;
+- (void) stopAutoSend;
+#endif
 @property (nonatomic, strong, readonly) YHChatSessionInfo* sessionInfo;
 
 - (instancetype) initWithSessionInfo:(YHChatSessionInfo*)info;

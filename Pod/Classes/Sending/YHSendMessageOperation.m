@@ -12,6 +12,11 @@
 #import "DZAuthSession.h"
 #import "YHCoreDB.h"
 #import "YHNotifications.h"
+#import "YHAppConfig.h"
+
+#ifdef MESSAGE_TEST
+#import "YHMessageTest.h"
+#endif
 
 @implementation YHSendMessageOperation
 
@@ -34,8 +39,20 @@
 
 - (void) sendMessageSuccess
 {
+    
     _message.msgStatus = YHMessageStatueNormal;
-
+#ifdef MESSAGE_TEST
+    int msgID = 0;
+    if (_message.type == MsgType_Text) {
+        Text* text = [Text parseFromData:_message.data error:nil];
+        NSString* content = [[NSString alloc] initWithData:text.context encoding:NSUTF8StringEncoding];
+        if ([content hasPrefix:@"auto-"]) {
+            content = [content substringFromIndex:5];
+        }
+        msgID = [content intValue];
+    }
+    [YHMessageTest reportSendMessage:msgID];
+#endif
 
     [YHActiveDBConnection updateMessage:_message];
     DZPostMessageChangedWithMessage(_message);

@@ -39,16 +39,24 @@
 #import <DZChatUI.h>
 #import "UIView+SingleClick.h"
 #import "YHRemindDefines.h"
-
-
+#import "DZObjectProxy.h"
+#import "YHAppConfig.h"
+#import "DZLogger.h"
+#ifdef MESSAGE_TEST
+#import "YHMessageTest.h"
+#endif
 @interface YHChatElement() <YHMessageItemBaseElementEvents, UIScrollViewDelegate>
 {
     NSArray* _serverMessageCache;
     NSTimer* _serverCacheCheckTimer;
+#ifdef MESSAGE_TEST
+    NSTimer* _sendMessageMachine;
+#endif
 }
 @property (nonatomic, strong) UIImage* leftBubbleImage;
 @property (nonatomic, strong) UIImage* rightBubbleImage;
 @property (nonatomic, strong) NSArray* serverMessageCache;
+@property (nonatomic, assign) int unreadCount;
 @end
 @implementation YHChatElement
 - (void) dealloc
@@ -64,6 +72,7 @@
     _leftBubbleImage  = [DZCachedImageByName(@"bubble_left") resizableImageWithCapInsets:UIEdgeInsetsMake(30, 18, 8, 8) resizingMode:UIImageResizingModeStretch];
     _rightBubbleImage  = [DZCachedImageByName(@"bubble_right") resizableImageWithCapInsets:UIEdgeInsetsMake(30, 8, 8, 18) resizingMode:UIImageResizingModeStretch];
     DZAddObserverForNewServerMessage(self,@selector(handleNewServerMessage:));
+    self.unreadCount = 0;
     return self;
 }
 
@@ -292,7 +301,22 @@
             if (sectionCount != _dataController.numberOfSections) {
                 insertSection = YES;
             }
+#ifdef MESSAGE_TEST
+            int msgID = 0;
+            if (message.type == MsgType_Text) {
+                Text* text = [Text parseFromData:message.data error:nil];
+                NSString* content = [[NSString alloc] initWithData:text.context encoding:NSUTF8StringEncoding];
+                if ([content hasPrefix:@"auto-"]) {
+                    content = [content substringFromIndex:5];
+                }
+                msgID = [content intValue];
+            }
+            [YHMessageTest reportUIReciveMessage:msgID];
+#endif
             [insertRows addObject:[NSIndexPath indexPathForRow:path.row inSection:path.section]];
+        } else {
+
+            DDLogInfo(@"exist message %@",message);
         }
     }
     if (!insertRows.count) {
@@ -322,23 +346,34 @@
             self.tableView.contentOffset.y > (self.tableView.contentSize.height - 4*CGRectGetHeight(self.tableView.bounds))) {
             dispatch_async(dispatch_get_main_queue(), ^{
                 [self.tableView scrollToRowAtIndexPath:maxPath atScrollPosition:UITableViewScrollPositionBottom animated:YES];
-                _serverMessageCache  = [NSArray new];
             });
         } else {
-            int unreadCount = serverMessages.count;
+            self.unreadCount += serverMessages.count;
             DZInputTextNoticeView* notice = [DZInputTextNoticeView new];
-            notice.text = [NSString stringWithFormat:@"你有%d条新消息",unreadCount];
+            notice.text = [NSString stringWithFormat:@"你有%d条新消息",self.unreadCount];
             __weak typeof(self) weakSelf = self;
             [notice setAction:^() {
                 [weakSelf scrollToEnd];
-                weakSelf.serverMessageCache  = [NSArray new];
+                weakSelf.unreadCount = 0;
             }];
             [self.inputViewController showNoticeView:notice];
         }
     } @catch (NSException *exception) {
         [self.tableView reloadData];
     } @finally {
-
+        NSMutableArray* msgs = [NSMutableArray arrayWithArray:_serverMessageCache];
+        [msgs removeObjectsInArray:serverMessages];
+        if (msgs.count != 0) {
+            
+        }
+        
+        _serverMessageCache  = msgs;
+    }
+}
+- (void) scrollViewDidScroll:(UIScrollView *)scrollView
+{
+    if (scrollView.contentOffset.y < scrollView.contentSize.height - scrollView.frame.size.width) {
+        
     }
 }
 - (void) handleServerMessages:(NSArray *)messages
@@ -351,9 +386,22 @@
         }
         @synchronized (self) {
             NSMutableArray* msgs = [NSMutableArray arrayWithArray:_serverMessageCache];
-            for (YHMessage* msg in messages) {
-                if (![msgs containsObject:msg]) {
-                    [msgs addObject:msg];
+            for (YHMessage* message in messages) {
+                if (![msgs containsObject:message]) {
+                    [msgs addObject:message];
+#ifdef MESSAGE_TEST
+                    int msgID = 0;
+                    if (message.type == MsgType_Text) {
+                        Text* text = [Text parseFromData:message.data error:nil];
+                        NSString* content = [[NSString alloc] initWithData:text.context encoding:NSUTF8StringEncoding];
+                        if ([content hasPrefix:@"auto-"]) {
+                            content = [content substringFromIndex:5];
+                        }
+                        msgID = [content intValue];
+                    }
+                    [YHMessageTest reportServerCacheRecive:msgID];
+#endif
+
                 } else
                 {
                     NSLog(@"重复了");
@@ -455,6 +503,7 @@
 
 - (void) scrollViewDidEndDecelerating:(UIScrollView *)scrollView
 {
+    self.unreadCount = 0;
     [self tryRemoveNoticeView];
 }
 - (void) scrollViewDidEndScrollingAnimation:(UIScrollView *)scrollView
@@ -462,6 +511,27 @@
     [self tryRemoveNoticeView];
 }
 
+#ifdef MESSAGE_TEST
+- (void) startAutoSend
+{
+    [_sendMessageMachine invalidate];
+    _sendMessageMachine = [NSTimer scheduledTimerWithTimeInterval:0.1 target:[DZWeakProxy proxyWithTarget:self] selector:@selector(autoSendMessage) userInfo:nil repeats:YES];
+    [[NSRunLoop mainRunLoop] addTimer:_sendMessageMachine forMode:NSDefaultRunLoopMode];
+    _isAutoSending = YES;
+}
 
+- (void) stopAutoSend
+{
+    [_sendMessageMachine invalidate];
+    _sendMessageMachine = nil;
+    _isAutoSending = NO;
+}
+- (void) autoSendMessage
+{
+    NSString* prefix = @"auto-";
+    static int index = 0;
+    [self inputText:[NSString stringWithFormat:@"%@%d",prefix,index++]];
+}
+#endif
 
 @end
