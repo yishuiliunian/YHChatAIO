@@ -26,14 +26,14 @@
 
 @interface YHPasswordChangeElement()
 {
-    EventPwdChange* _pwdChange;
+    ToastPwdChange* _pwdChange;
 }
 @end
 @implementation YHPasswordChangeElement
 - (void) buildMsgContent
 {
     [super buildMsgContent];
-    _pwdChange = [EventPwdChange parseFromData:_toast.subBody error:nil];
+    _pwdChange = [ToastPwdChange parseFromData:_toast.subBody error:nil];
 }
 - (NSMutableAttributedString*) buildToastConentString
 {

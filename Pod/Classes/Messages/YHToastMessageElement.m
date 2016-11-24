@@ -29,14 +29,20 @@
 #import "YHPasswordChangeElement.h"
 #import "YHTGotLoveElement.h"
 
- int32_t const EVENT_TROOP_MEMBER_KILL = 0x4001;//事件（全员） + 被踢者收系统消息
- static  int32_t  const  EVENT_TROOP_CLOSE = 0x4002;//群关闭 = 事件 （非全员，群主不用收该事件） + 所有人收到关群的系统消息(包括群主)
- static  int32_t  const EVENT_TROOP_MEMBER_JOIN = 0x4003;//事件（非全员，入群者不用收该事件）
- static  int32_t  const EVENT_TROOP_MEMBER_QUIT = 0x4004;//事件（非全员，退群者不用收该事件）
- static  int32_t const  EVENT_CLASS_CLOSE = 0x4010;//群关闭 = 事件 （非全员，班长不用收该事件） + 所有人收到班级关闭的系统消息（包括班长）
-static int32_t const EVENT_CLASS_JOIN = 0x4011; //有人申请加入班级
- static  int32_t const  EVENT_LOVEWALL_NEW = 0x4020;//有人表白
-static int32_t const EVENT_PASSWORD_CHANGED = 0x4040; // 提示修改密码(0x4040)
+//---------Toast包括：
+
+int32_t const TOAST_TROOP_MEMBER_KILL = 0x0001;//（非全员，有人被踢，被踢者接收的是事件，非toast）
+int32_t const TOAST_TROOP_MEMBER_JOIN = 0x0003;//（非全员，入群者不用收该消息）
+int32_t const TOAST_TROOP_MEMBER_QUIT = 0x0004;//（非全员，退群者不用收该消息）
+int32_t const TOAST_PWD_UPDATE = 0x0040;//新注册或重置密码系统消息提示
+int32_t const TOAST_CLASS_JOIN = 0x0011;//有人申请加入班级
+
+//---------事件包括：
+
+//0x4001: 被踢, 0x4002: 活动关闭, 0x4010：班级解散
+int32_t const EVENT_TROOP_MEMBER_KILL = 0x4001;//自己被踢
+int32_t const EVENT_TROOP_CLOSE = 0x4002;//群关闭 = 事件 （非全员，群主不用收该事件） + 所有人收到关群的系统消息(包括群主)
+int32_t const EVENT_CLASS_CLOSE = 0x4010;//班级解散 = 事件 （非全员，班长不用收该事件） + 所有人收到班级关闭的系统消息（包括班长）
 
 @interface YHToastMessageElement () <YHCacheFetcherObsever>
 
@@ -64,17 +70,15 @@ static int32_t const EVENT_PASSWORD_CHANGED = 0x4040; // 提示修改密码(0x40
         case EVENT_TROOP_CLOSE:
             return [[YHTCloseActionGroupElement alloc] initWithMsg:message];
             break;
-        case EVENT_TROOP_MEMBER_JOIN:
+        case TOAST_TROOP_MEMBER_JOIN:
             return [[YHJoinActionGroupElement alloc] initWithMsg:message];
-        case EVENT_TROOP_MEMBER_QUIT:
+        case TOAST_TROOP_MEMBER_QUIT:
             return [[YHExitActionGroupElement alloc] initWithMsg:message];
         case EVENT_CLASS_CLOSE:
             return [[YHTCloseClassElement alloc] initWithMsg:message];
-        case EVENT_CLASS_JOIN:
+        case TOAST_CLASS_JOIN:
             return [[YHJoinClassElement alloc] initWithMsg:message];
-        case EVENT_LOVEWALL_NEW:
-            return [[YHTGotLoveElement alloc] initWithMsg:message];
-        case EVENT_PASSWORD_CHANGED:
+        case TOAST_PWD_UPDATE:
             return [[YHPasswordChangeElement alloc] initWithMsg:message];
         default:
             return [[YHUnsupportElement alloc] initWithMsg:message];

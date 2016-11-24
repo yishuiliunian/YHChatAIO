@@ -16,7 +16,6 @@
 typedef NS_ENUM(NSInteger, YHSendingStatus) {
     YHSendingStatusNoSend = 0,
     YHSendingStatusSeding = 1,
-    YHSendingStatusReject = 2,
     YHSendingStatusError = 3,
 };
 

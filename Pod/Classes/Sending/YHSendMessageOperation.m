@@ -66,11 +66,9 @@
 
 - (void) sendMessageFaild:(NSError*)error
 {
-    if (error.code == YHMessageStatueReject ) {
-        _message.msgStatus = YHMessageStatueReject;
-    } else {
-        _message.msgStatus = YHMessageStatueSendError;
-    }
+
+    _message.msgStatus = YHMessageStatueSendError;
+    _message.errorMessage = error.localizedDescription;
     [YHActiveDBConnection updateMessage:_message];
     DZPostMessageChangedWithMessage(_message);
     dispatch_async(dispatch_get_main_queue(), ^{

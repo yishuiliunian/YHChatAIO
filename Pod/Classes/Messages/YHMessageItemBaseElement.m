@@ -78,14 +78,14 @@ static CGSize kSpaceSize = {20, 14};
         } else if (message.type == MsgType_Toast) {
             item  = [YHToastMessageElement toastElementWithMessage:message];
         } else if(message.type == MsgType_Event) {
-            item = [YHToastMessageElement toastElementWithMessage:message];
+            item = nil;
         }else {
             item = [[YHUnsupportElement alloc] initWithMsg:message];
         }
     } @catch (NSException *exception) {
         item = [[YHUnsupportElement alloc] initWithMsg:message];
     } @finally {
-        if (!item) {
+        if (!item && message.type != MsgType_Event) {
             item = [[YHUnsupportElement alloc] initWithMsg:message];
         }
     }
@@ -203,8 +203,6 @@ static CGSize kSpaceSize = {20, 14};
     if (_msg.msgStatus != YHMessageStatueNormal) {
         if ([[YHMessageSendManager shareManager] isSendingMessage:_msg.msgID]) {
             _sendingStatus = YHSendingStatusSeding;
-        } else if(_msg.msgStatus == YHMessageStatueReject){
-            _sendingStatus = YHSendingStatusReject;
         } else {
             _sendingStatus = YHSendingStatusError;
         }
@@ -327,15 +325,18 @@ static CGSize kSpaceSize = {20, 14};
     
     statuRect = CGRectCenter(statuRect, statuSize);
     _statusRect = statuRect;
-    if (_sendingStatus == YHSendingStatusReject) {
-        NSString* tStr=  @"消息已发出，但被对方拒收了！";
-        _bottomString = [self indicatorStringWithText:tStr];
-        CGRect bottomRect;
-        bottomRect.origin = (CGPoint) {0, CGRectGetMaxY(_bubbleRect)};
-        bottomRect.size = (CGSize) {_maxWidth, 30};
-        bottomRect = CGRectCenterSubSize(bottomRect, CGSizeMake(0, 10));
-        _bottomIndicatorRect = bottomRect;
-        self.cellHeight += 30;
+    if (_sendingStatus == YHSendingStatusError) {
+        NSString* tStr=  _msg.errorMessage;
+        if (tStr.length) {
+            _bottomString = [self indicatorStringWithText:tStr];
+            CGRect bottomRect;
+            bottomRect.origin = (CGPoint) {0, CGRectGetMaxY(_bubbleRect)};
+            bottomRect.size = (CGSize) {_maxWidth, 30};
+            bottomRect = CGRectCenterSubSize(bottomRect, CGSizeMake(0, 10));
+            _bottomIndicatorRect = bottomRect;
+            self.cellHeight += 30;
+        }
+
     }
     self.cellHeight += 8;
 }
@@ -459,17 +460,17 @@ static CGSize kSpaceSize = {20, 14};
         cell.timeLineLabel.attributedText = _timeString;
         cell.timeLineLabel.textAlignment = NSTextAlignmentCenter;
     }
-    if (_sendingStatus == YHSendingStatusReject) {
+    if (_bottomString.length) {
         cell.bottomIndictorLabel.attributedText = _bottomString;
         cell.bottomIndictorLabel.textAlignment = NSTextAlignmentCenter;
     }
+
 }
 
 - (void) showSendingStatusWithCell:(YHMessageItemBaseCell*)cell
 {
     switch (_sendingStatus) {
         case YHSendingStatusError:
-        case YHSendingStatusReject:
         {
             self.messageCell.sendStatusImageView.animatedImage = nil;
             self.messageCell.sendStatusImageView.image = DZCachedImageByName(@"alert_error");
@@ -521,20 +522,20 @@ static CGSize kSpaceSize = {20, 14};
 }
 - (void) sendOperation:(YHSendMessageOperation *)op faild:(NSError *)error
 {
-    if (error.code == YHSendingStatusReject) {
-        _sendingStatus = YHSendingStatusReject;
-        [self caculateLayout];
-        [self reloadUI];
-    } else {
-        _sendingStatus = YHSendingStatusError;
-    }
+    _sendingStatus = YHSendingStatusError;
+    [self caculateLayout];
+    [self reloadUI];
     [self showSendingStatusWithCell:self.messageCell];
+   NSIndexPath* indexPath =  [self visibleIndexPath];
+    if (indexPath && indexPath.row != NSNotFound) {
+        [self.superTableView scrollToRowAtIndexPath:indexPath atScrollPosition:UITableViewRowAnimationBottom animated:YES];
+    }
 
 }
 
 - (void) sendOperationSuccess:(YHSendMessageOperation *)op message:(YHMessage *)message
 {
-    if (self.resendingOldStatus == YHSendingStatusReject) {
+    if (self.resendingOldStatus == YHSendingStatusError) {
         _sendingStatus = YHSendingStatusNoSend;
         [self caculateLayout];
         [self reloadUI];
@@ -563,7 +564,7 @@ static CGSize kSpaceSize = {20, 14};
 
 - (void) chatCellDidTapStatusView:(DZChatMessageBaseCell *)cell
 {
-    if (_sendingStatus == YHSendingStatusError || _sendingStatus == YHSendingStatusReject) {
+    if (_sendingStatus == YHSendingStatusError) {
         if (self.resendAlert) {
             return;
         }
