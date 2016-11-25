@@ -53,7 +53,7 @@
     }
     [YHMessageTest reportSendMessage:msgID];
 #endif
-
+    _message.errorMessage = nil;
     [YHActiveDBConnection updateMessage:_message];
     DZPostMessageChangedWithMessage(_message);
     

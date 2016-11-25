@@ -28,21 +28,8 @@
 #import "YHJoinClassElement.h"
 #import "YHPasswordChangeElement.h"
 #import "YHTGotLoveElement.h"
+#import "YHSyncMsgRequest.h"
 
-//---------Toast包括：
-
-int32_t const TOAST_TROOP_MEMBER_KILL = 0x0001;//（非全员，有人被踢，被踢者接收的是事件，非toast）
-int32_t const TOAST_TROOP_MEMBER_JOIN = 0x0003;//（非全员，入群者不用收该消息）
-int32_t const TOAST_TROOP_MEMBER_QUIT = 0x0004;//（非全员，退群者不用收该消息）
-int32_t const TOAST_PWD_UPDATE = 0x0040;//新注册或重置密码系统消息提示
-int32_t const TOAST_CLASS_JOIN = 0x0011;//有人申请加入班级
-
-//---------事件包括：
-
-//0x4001: 被踢, 0x4002: 活动关闭, 0x4010：班级解散
-int32_t const EVENT_TROOP_MEMBER_KILL = 0x4001;//自己被踢
-int32_t const EVENT_TROOP_CLOSE = 0x4002;//群关闭 = 事件 （非全员，群主不用收该事件） + 所有人收到关群的系统消息(包括群主)
-int32_t const EVENT_CLASS_CLOSE = 0x4010;//班级解散 = 事件 （非全员，班长不用收该事件） + 所有人收到班级关闭的系统消息（包括班长）
 
 @interface YHToastMessageElement () <YHCacheFetcherObsever>
 
@@ -63,6 +50,7 @@ int32_t const EVENT_CLASS_CLOSE = 0x4010;//班级解散 = 事件 （非全员，
     if (!toast) {
         return [[YHUnsupportElement alloc] initWithMsg:message];
     }
+    
     switch (toast.subType) {
         case EVENT_TROOP_MEMBER_KILL:
             return [[YHTActionGroupKillElement alloc] initWithMsg:message];

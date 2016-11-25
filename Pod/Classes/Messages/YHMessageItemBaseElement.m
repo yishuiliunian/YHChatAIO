@@ -330,13 +330,13 @@ static CGSize kSpaceSize = {20, 14};
         if (tStr.length) {
             _bottomString = [self indicatorStringWithText:tStr];
             CGRect bottomRect;
+            CGFloat bottomHeight = 30;
             bottomRect.origin = (CGPoint) {0, CGRectGetMaxY(_bubbleRect)};
-            bottomRect.size = (CGSize) {_maxWidth, 30};
+            bottomRect.size = (CGSize) {_maxWidth, bottomHeight};
             bottomRect = CGRectCenterSubSize(bottomRect, CGSizeMake(0, 10));
             _bottomIndicatorRect = bottomRect;
-            self.cellHeight += 30;
+            self.cellHeight += bottomHeight;
         }
-
     }
     self.cellHeight += 8;
 }
