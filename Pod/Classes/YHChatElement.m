@@ -1,4 +1,4 @@
-//
+ //
 //  YHChatElement.m
 //  YaoHe
 //
@@ -211,9 +211,10 @@
     if (dataProvider) {
         dataProvider(message);
     }
-    
     message.bShowTime = [YHActiveDBConnection checkWillShowTime:message];
-    [YHActiveDBConnection updateMessage:message];
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
+        [YHActiveDBConnection updateMessage:message];
+    });
     YHMessageItemBaseElement* element = [self __elementWithYHMessage:message];
     [[YHMessageSendManager shareManager] sendMessage:message withDelegate:element];
     

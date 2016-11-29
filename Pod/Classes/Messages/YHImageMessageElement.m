@@ -18,6 +18,7 @@
 #import "DZFileUtils.h"
 #import "YHImageURLAdapter.h"
 #import <MWPhotoBrowser/MWPhotoBrowser.h>
+#import "YHURLRouteDefines.h"
 
 @interface YHImageMessageElement ()
 {
@@ -134,14 +135,7 @@
     } else {
         url = [NSURL fileURLWithPath:_imageData.URL];
     }
-    MWPhoto* photo = [MWPhoto photoWithURL:url];
-    [photos addObject:photo];
-    MWPhotoBrowser* browser = [[MWPhotoBrowser alloc] initWithPhotos:photos];
-    UINavigationController* nav = [[UINavigationController alloc] initWithRootViewController:browser];
-    
-    [vc.navigationController presentViewController:nav animated:YES completion:^{
-        
-    }];;
+    YHShowSinglePhoto(url.absoluteString);
 }
 - (void) sendOperationDidStart:(YHSendMessageOperation *)op
 {
