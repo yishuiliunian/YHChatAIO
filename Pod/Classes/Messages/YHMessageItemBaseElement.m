@@ -21,8 +21,7 @@
 #import "YYText.h"
 #import "YHMessageSendManager.h"
 #import "UIView+SingleClick.h"
-#import "YHUserInfoViewController.h"
-#import "YHUserInfoElement.h"
+#import "YHURLRouteDefines.h"
 #import "YHCommonCache.h"
 #import "RpcAccountMessage.pbobjc.h"
 #import "QBPopupMenu.h"
@@ -381,10 +380,9 @@ static CGSize kSpaceSize = {20, 14};
 
 - (void) handleCheckUserInfo
 {
-        YHUserInfoElement* ele = [[YHUserInfoElement alloc] initWithUserID:_userUUID];
-        YHUserInfoViewController* vcx = [[YHUserInfoViewController alloc] initWithElement:ele];
-    vcx.hidesBottomBarWhenPushed = YES;
-        [self.hostViewController.navigationController pushViewController:vcx animated:YES];
+    NSMutableDictionary* info = [NSMutableDictionary new];
+    [info safeSetObject:_userUUID forKey:kYHURLQueryParamterUID];
+    [[DZURLRoute defaultRoute] routeURL:DZURLRouteQueryLink(kYHURLUserDetail, info)];
 }
 
 - (void) reloadUserInfoIfCan

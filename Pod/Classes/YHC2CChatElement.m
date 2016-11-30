@@ -9,8 +9,7 @@
 #import "YHC2CChatElement.h"
 #import "DZImageCache.h"
 #import "YHChatViewController.h"
-#import "YHUserInfoViewController.h"
-#import "YHUserInfoElement.h"
+#import "YHURLRouteDefines.h"
 #import "YHCommonCache.h"
 #import <YHNetCore.h>
 
@@ -21,10 +20,9 @@
 @implementation YHC2CChatElement
 - (void) handleUserInfoTap:(id)sender
 {
-    YHUserInfoElement* ele = [[YHUserInfoElement alloc] initWithUserID:self.sessionInfo.uuid];
-    YHUserInfoViewController* vcx = [[YHUserInfoViewController alloc] initWithElement:ele];
-    vcx.hidesBottomBarWhenPushed = YES;
-    [self.env.navigationController pushViewController:vcx animated:YES];
+    NSMutableDictionary* info = [NSMutableDictionary new];
+    [info safeSetObject:self.sessionInfo.uuid forKey:kYHURLQueryParamterUID];
+    [[DZURLRoute defaultRoute] routeURL:DZURLRouteQueryLink(kYHURLUserDetail, info)];
 }
 
 - (void) willBeginHandleResponser:(YHChatViewController *)responser
