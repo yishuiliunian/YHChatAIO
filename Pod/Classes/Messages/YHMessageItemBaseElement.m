@@ -336,6 +336,8 @@ static CGSize kSpaceSize = {20, 14};
             _bottomIndicatorRect = bottomRect;
             self.cellHeight += bottomHeight;
         }
+    } else {
+        _bottomIndicatorRect = CGRectZero;
     }
     self.cellHeight += 8;
 }
