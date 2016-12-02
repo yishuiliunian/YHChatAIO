@@ -214,6 +214,7 @@
     message.bShowTime = [YHActiveDBConnection checkWillShowTime:message];
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
         [YHActiveDBConnection updateMessage:message];
+        DZPostMessageChangedWithMessage(message);
     });
     YHMessageItemBaseElement* element = [self __elementWithYHMessage:message];
     [[YHMessageSendManager shareManager] sendMessage:message withDelegate:element];
@@ -233,7 +234,7 @@
         }
     });
 
-    DZPostMessageChangedWithMessage(message);
+
 }
 
 - (void) setAllMessageReaded
@@ -385,6 +386,7 @@
             message.isRead = YES;
             [connection updateMessage:message];
         }
+        DZPostMessageChangedWithMessage(messages.lastObject);
         @synchronized (self) {
             NSMutableArray* msgs = [NSMutableArray arrayWithArray:_serverMessageCache];
             for (YHMessage* message in messages) {
@@ -411,7 +413,7 @@
             _serverMessageCache = msgs;
         }
     });
-    DZPostMessageChangedWithMessage(messages.lastObject);
+
 }
 
 - (void) inputImage:(UIImage*)image
