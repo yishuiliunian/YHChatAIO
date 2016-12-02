@@ -182,7 +182,7 @@ static CGSize kSpaceSize = {20, 14};
         return self;
     }
 
-    _msg = msg;
+    _msg = [msg copy];
 
     _sendByMe = [DZActiveAuthSession.userID isEqualToString:_msg.fromAccount];
     if (msg.fromType == UserType_GroupUser || msg.fromType == UserType_ChatroomUser || msg.fromType == UserType_ClassUser) {

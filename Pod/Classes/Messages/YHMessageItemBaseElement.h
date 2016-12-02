@@ -67,7 +67,7 @@ typedef NS_ENUM(NSInteger, YHSendingStatus) {
 @property (nonatomic, strong) UIImage* leftBubbleImage;
 @property (nonatomic, strong) UIImage* rightBubbleImage;
 @property (nonatomic,assign,readonly) BOOL sendByMe;
-@property (nonatomic, strong, readonly) YHMessage* msg;
+@property (nonatomic, strong,readonly) YHMessage* msg;
 @property (nonatomic, strong, readonly) NSString* simpleDescription;
 @property (nonatomic, assign) YHMessageStatue msgStatue;
 @property (nonatomic, strong) NSString* nickName;
