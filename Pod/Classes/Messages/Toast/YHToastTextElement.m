@@ -68,6 +68,10 @@
     return mAStr;
 }
 
+- (BOOL) showNickLabel
+{
+    return NO;
+}
 - (void) prepareLayouts:(CGFloat *)cellHeight
 {
     [super prepareLayouts:cellHeight];

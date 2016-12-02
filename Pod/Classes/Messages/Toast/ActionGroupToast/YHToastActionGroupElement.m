@@ -17,9 +17,19 @@
 {
     [super buildMsgContent];
     _groupChange = [EventGroupChange parseFromData:[_toast subBody] error:nil];
+    UserProfile* userProfile = [[YHCommonCache shareCache] memoryFetchProfile:_groupChange.userName fetchType:YHModelFetchUserProfile];
+    if (userProfile) {
+        _userNick = userProfile.readNick;
+    } else {
+        [[YHCommonCache shareCache] fetchUserProfile:_groupChange.userName observer:self];
+    }
     
-    [[YHCommonCache shareCache] fetchUserProfile:_groupChange.userName observer:self];
-    [[YHCommonCache shareCache] fetchActionGroup:_groupChange.groupId observer:self];
+    ActionGroup* actionGroup =[[YHCommonCache shareCache] memoryFetchProfile:_groupChange.groupId fetchType:YHModelFetchGroupProfile];
+    if (actionGroup) {
+        _groupName = _groupName = actionGroup.groupName.length ? actionGroup.groupName : actionGroup.groupId;
+    } else {
+        [[YHCommonCache shareCache] fetchActionGroup:_groupChange.groupId observer:self];
+    }
 }
 - (void) commonCacheFetchUID:(NSString *)modelId withModel:(id)model
 {

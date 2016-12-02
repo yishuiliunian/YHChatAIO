@@ -11,7 +11,7 @@
 @implementation YHExitActionGroupElement
 - (NSMutableAttributedString*) buildContentText
 {
-    NSString* output = [NSString stringWithFormat:@"[%@]退出了群[%@]",_userNick, _groupName];
+    NSString* output = [NSString stringWithFormat:@"[%@]退出了活动[%@]",_userNick, _groupName];
     NSMutableAttributedString* mAStr = [[NSMutableAttributedString alloc] initWithString:output];
     return mAStr;
 }

@@ -32,7 +32,12 @@
     if (_className.length == 0) {
         [[YHCommonCache shareCache] fetchClassRoomProfile:_classChange.classId observer:self];
     }
-    [[YHCommonCache shareCache] fetchUserProfile:_classChange.userName observer:self];
+    UserProfile* userProfile = [[YHCommonCache shareCache] memoryFetchProfile:_classChange.userName fetchType:YHModelFetchUserProfile];
+    if (userProfile) {
+        _userName = userProfile.readNick;
+    } else {
+        [[YHCommonCache shareCache] fetchUserProfile:_classChange.userName observer:self];
+    }
 }
 - (NSMutableAttributedString*) buildToastConentString
 {

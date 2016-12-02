@@ -101,4 +101,5 @@ typedef NS_ENUM(NSInteger, YHSendingStatus) {
  */
 - (void) notifyReadableReady;
 
+- (BOOL) showNickLabel;
 @end

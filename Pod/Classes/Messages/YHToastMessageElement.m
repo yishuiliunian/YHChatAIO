@@ -83,6 +83,11 @@
     return self;
 }
 
+- (void) prepareLayouts:(CGFloat *)cellHeight
+{
+    [super prepareLayouts:cellHeight];
+}
+
 - (void) buildMsgContent
 {
     [super buildMsgContent];

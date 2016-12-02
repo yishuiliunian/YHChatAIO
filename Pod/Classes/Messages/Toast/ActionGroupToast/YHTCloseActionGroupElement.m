@@ -11,7 +11,7 @@
 @implementation YHTCloseActionGroupElement
 - (NSMutableAttributedString*) buildContentText
 {
-    NSString* output = [NSString stringWithFormat:@"群[%@]已关闭", _groupName];
+    NSString* output = [NSString stringWithFormat:@"活动[%@]已关闭", _groupName];
     NSMutableAttributedString* mAStr = [[NSMutableAttributedString alloc] initWithString:output];
     return mAStr;
 }

@@ -11,7 +11,7 @@
 @implementation YHTActionGroupKillElement
 - (NSMutableAttributedString*) buildContentText
 {
-    NSString* output = [NSString stringWithFormat:@"成员[%@]被移出了群[%@]", _userNick, _groupName];
+    NSString* output = [NSString stringWithFormat:@"成员[%@]被移出了活动[%@]", _userNick, _groupName];
     NSMutableAttributedString* mAStr = [[NSMutableAttributedString alloc] initWithString:output];
     return mAStr;
 }
