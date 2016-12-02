@@ -65,7 +65,9 @@
 {
     if (!self.msg.isCheckedDetail) {
         self.msg.isCheckedDetail = YES;
-        [YHActiveDBConnection updateMessage:self.msg];
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
+            [YHActiveDBConnection updateMessage:self.msg];
+        });
     }
 
     [[DZURLRoute defaultRoute] routeURL:[NSURL URLWithString:_pwdChange.URL]];

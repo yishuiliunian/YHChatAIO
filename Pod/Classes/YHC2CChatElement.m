@@ -12,7 +12,8 @@
 #import "YHURLRouteDefines.h"
 #import "YHCommonCache.h"
 #import <YHNetCore.h>
-
+#import "YHAppConfig.h"
+#import "KxMenu.h"
 @interface YHC2CChatElement () <YHCacheFetcherObsever>
 
 @end
@@ -20,9 +21,27 @@
 @implementation YHC2CChatElement
 - (void) handleUserInfoTap:(id)sender
 {
+#ifdef MESSAGE_TEST
+    NSMutableArray* items = [NSMutableArray new];
+
+    if (self.isAutoSending) {
+        KxMenuItem* close = [KxMenuItem menuItem:@"关闭自动发送" image:DZCachedImageByName(@"ic_action_exit") target:self action:@selector(stopAutoSend)];
+        [items addObject:close];
+    } else {
+        KxMenuItem* close = [KxMenuItem menuItem:@"开始自动发送" image:DZCachedImageByName(@"ic_action_exit") target:self action:@selector(startAutoSend)];
+        [items addObject:close];
+    }
+
+    CGRect rect = CGRectMake(0, 0, 0, 0);
+    rect.origin.x = CGRectGetWidth(self.env.view.bounds) - 20;
+    rect.origin.y = CGRectGetHeight(self.env.navigationController.navigationBar.bounds) + 20;
+    [KxMenu showMenuInView:[UIApplication sharedApplication].keyWindow fromRect:rect menuItems:items];
+#else
     NSMutableDictionary* info = [NSMutableDictionary new];
     [info safeSetObject:self.sessionInfo.uuid forKey:kYHURLQueryParamterUID];
     [[DZURLRoute defaultRoute] routeURL:DZURLRouteQueryLink(kYHURLUserDetail, info)];
+
+#endif
 }
 
 - (void) willBeginHandleResponser:(YHChatViewController *)responser

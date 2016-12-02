@@ -153,7 +153,9 @@
             if ([text containsString:key]) {
                 UIImage* image = DZCachedImageByName(map[key]);
                 if (image) {
-                    [weakSelf showFunSceneWithImage:image];
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        [weakSelf showFunSceneWithImage:image];
+                    });
                 }
             }
         }
