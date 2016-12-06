@@ -217,7 +217,7 @@
         DZPostMessageChangedWithMessage(message);
     });
     YHMessageItemBaseElement* element = [self __elementWithYHMessage:message];
-    [[YHMessageSendManager shareManager] sendMessage:[message copy] withDelegate:element];
+    [[YHMessageSendManager shareManager] sendMessage:message  withDelegate:element];
     
     EKIndexPath indexpath = [_dataController addObject:element];
     NSIndexPath* ocIndexPath = [NSIndexPath indexPathForRow:indexpath.row inSection:indexpath.section];

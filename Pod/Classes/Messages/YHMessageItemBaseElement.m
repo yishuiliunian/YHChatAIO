@@ -512,6 +512,7 @@ static CGSize kSpaceSize = {20, 14};
 - (void) sendOperationDidStart:(YHSendMessageOperation *)op
 {
     _sendingStatus = YHSendingStatusSeding;
+    self.msg.msgStatus = YHMessageStatueNormal;
     [self showSendingStatusWithCell:self.messageCell];
 
 }
@@ -523,6 +524,8 @@ static CGSize kSpaceSize = {20, 14};
 - (void) sendOperation:(YHSendMessageOperation *)op faild:(NSError *)error
 {
     _sendingStatus = YHSendingStatusError;
+    self.msg.msgStatus = YHMessageStatueSendError;
+    self.msg.errorMessage = error.localizedDescription;
     [self caculateLayout];
     [self reloadUI];
     [self showSendingStatusWithCell:self.messageCell];
