@@ -90,6 +90,10 @@ static CGSize kSpaceSize = {20, 14};
     }
     return item;
 }
+- (void) dealloc
+{
+    DZRemoveObserverForNetworkChanged(self);
+}
 - (instancetype) init
 {
     self = [super init];
@@ -99,7 +103,20 @@ static CGSize kSpaceSize = {20, 14};
     _viewClass = [YHMessageItemBaseCell class];
     self.selectionStyle = UITableViewCellSelectionStyleNone;
     return self;
-    
+}
+
+- (void) handleNetworkChanged:(NSNotification *)nc
+{
+    if (self.msg.msgStatus == YHSendingStatusError) {
+        YHNetStatusChangeEvent * even = nc.userInfo.yh_netStatusChangEvent;
+        if (even.originStatus == NotReachable && even.aimStatus != NotReachable )  {
+            if(![[YHMessageSendManager shareManager] isSendingMessage:self.msg.msgID]) {
+                [[YHMessageSendManager shareManager] sendMessage:self.msg withDelegate:self];
+            } else {
+                [[YHMessageSendManager shareManager] moniterSendingMessage:self.msg.msgID withDelegate:self];
+            }
+        }
+    }
 }
 
 - (NSAttributedString*) readableContentText
@@ -198,7 +215,10 @@ static CGSize kSpaceSize = {20, 14};
     }
     _yItemSpace = 5;
     _xItemSpace = 3;
-    
+
+    if (self.sendByMe) {
+        DZAddObserverForNetworkChanged(self, @selector(handleNetworkChanged:));
+    }
     if (_msg.msgStatus != YHMessageStatueNormal) {
         if ([[YHMessageSendManager shareManager] isSendingMessage:_msg.msgID]) {
             _sendingStatus = YHSendingStatusSeding;
@@ -512,9 +532,8 @@ static CGSize kSpaceSize = {20, 14};
 - (void) sendOperationDidStart:(YHSendMessageOperation *)op
 {
     _sendingStatus = YHSendingStatusSeding;
-    self.msg.msgStatus = YHMessageStatueNormal;
-    [self showSendingStatusWithCell:self.messageCell];
-
+    [self caculateLayout];
+    [self reloadUI];
 }
 
 - (void) sendOperation:(YHSendMessageOperation *)op onProgress:(float)progress
@@ -529,7 +548,7 @@ static CGSize kSpaceSize = {20, 14};
     [self caculateLayout];
     [self reloadUI];
     [self showSendingStatusWithCell:self.messageCell];
-   NSIndexPath* indexPath =  [self visibleIndexPath];
+    NSIndexPath* indexPath =  [self visibleIndexPath];
     if (indexPath && indexPath.row != NSNotFound) {
         [self.superTableView scrollToRowAtIndexPath:indexPath atScrollPosition:UITableViewRowAnimationBottom animated:YES];
     }
@@ -538,13 +557,15 @@ static CGSize kSpaceSize = {20, 14};
 
 - (void) sendOperationSuccess:(YHSendMessageOperation *)op message:(YHMessage *)message
 {
+    self.msg.msgStatus = YHMessageStatueNormal;
     if (self.resendingOldStatus == YHSendingStatusError) {
         _sendingStatus = YHSendingStatusNoSend;
         [self caculateLayout];
         [self reloadUI];
     } else {
         _sendingStatus = YHSendingStatusNoSend;
-        [self showSendingStatusWithCell:self.messageCell];
+        [self caculateLayout];
+        [self reloadUI];
     }
 }
 

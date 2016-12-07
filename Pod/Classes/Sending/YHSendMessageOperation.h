@@ -22,11 +22,15 @@
 
 @class YHMessage;
 @interface YHSendMessageOperation : NSOperation
-@property (atomic, weak) id<YHSendMessageDelegate> delegate;
+{
+@protected
+    NSPointerArray * _observers;
+}
 @property (nonatomic, strong, readonly) YHMessage* message;
 - (instancetype) initWithMessage:(YHMessage*)message;
 - (BOOL) uploadFileIfNeed:(NSError* __autoreleasing*)error;
 
 //
 - (void) sendMessageFaild:(NSError*)error;
+- (void) addObserver:(id<YHSendMessageDelegate>)observer;
 @end

@@ -18,6 +18,9 @@
 #import "YHMessageTest.h"
 #endif
 
+@interface YHSendMessageOperation ()
+
+@end
 @implementation YHSendMessageOperation
 
 - (instancetype) initWithMessage:(YHMessage*)message
@@ -27,10 +30,19 @@
         return self;
     }
     _message = message;
+    _observers = [NSPointerArray weakObjectsPointerArray];
     return self;
-    
 }
 
+- (void) addObserver:(id<YHSendMessageDelegate>)observer
+{
+    for (id <YHSendMessageDelegate> delegate in _observers) {
+        if (delegate == observer) {
+            return;;
+        }
+    }
+    [_observers addPointer:(void *)observer];
+}
 
 - (BOOL) uploadFileIfNeed:(NSError* __autoreleasing*)error
 {
@@ -58,8 +70,10 @@
     DZPostMessageChangedWithMessage(_message);
     
     dispatch_async(dispatch_get_main_queue(), ^{
-        if ([self.delegate respondsToSelector:@selector(sendOperationSuccess:message:)]) {
-            [self.delegate sendOperationSuccess:self message:_message];
+        for (id <YHSendMessageDelegate> delegate in _observers) {
+            if ([delegate respondsToSelector:@selector(sendOperationSuccess:message:)]) {
+                [delegate sendOperationSuccess:self message:_message];
+            }
         }
     });
 }
@@ -72,19 +86,28 @@
     [YHActiveDBConnection updateMessage:_message];
     DZPostMessageChangedWithMessage(_message);
     dispatch_async(dispatch_get_main_queue(), ^{
-        if ([self.delegate respondsToSelector:@selector(sendOperation:faild:)]) {
-            [self.delegate sendOperation:self faild:error];
+        for (id <YHSendMessageDelegate> delegate in _observers) {
+            if ([delegate respondsToSelector:@selector(sendOperation:faild:)]) {
+                [delegate sendOperation:self faild:error];
+            }
         }
     });
 }
-
+- (void) notifyStart
+{
+    dispatch_async(dispatch_get_main_queue(), ^{
+    for (id <YHSendMessageDelegate> delegate in _observers) {
+        if ([delegate respondsToSelector:@selector(sendOperationDidStart:)]) {
+            [delegate sendOperationDidStart:self];
+        }
+    }
+    });
+}
 - (void) main
 {
     @autoreleasepool {
 
-        if ([self.delegate respondsToSelector:@selector(sendOperationDidStart:)]) {
-            [self.delegate sendOperationDidStart:self];
-        }
+        [self notifyStart];
         NSError* error;
         if (![self uploadFileIfNeed:&error]) {
             [self sendMessageFaild:error];

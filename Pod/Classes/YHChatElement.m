@@ -514,6 +514,7 @@
     [self tryRemoveNoticeView];
 }
 
+
 #ifdef MESSAGE_TEST
 - (void) startAutoSend
 {

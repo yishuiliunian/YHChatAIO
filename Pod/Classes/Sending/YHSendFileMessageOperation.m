@@ -27,11 +27,12 @@
 - (void) notifyProcess:(CGFloat)process
 {
     dispatch_async(dispatch_get_main_queue(), ^{
-        if ([self.delegate respondsToSelector:@selector(sendOperation:onProgress:)]) {
-            [self.delegate sendOperation:self onProgress:process];
+        for (id <YHSendMessageDelegate> delegate in _observers) {
+            if ([delegate respondsToSelector:@selector(sendOperation:onProgress:)]) {
+                [delegate sendOperation:self onProgress:process];
+            }
         }
     });
-
 }
 
 - (void) onUploadFile:(NSString*) url

@@ -62,11 +62,16 @@
 }
 - (void) sendMessage:(YHMessage*)msg withDelegate:(id<YHSendMessageDelegate>)delegate
 {
-    YHSendMessageOperation* op = [self sendOperationWithMSG:msg];
-    if (op) {
-        op.delegate = delegate;
-        [_operationQueue addOperation:op];
+    if ([self isSendingMessage:msg.msgID] ) {
+        [self moniterSendingMessage:msg.msgID withDelegate:delegate];
+    } else {
+        YHSendMessageOperation* op = [self sendOperationWithMSG:msg];
+        if (op) {
+            [op addObserver:delegate];
+            [_operationQueue addOperation:op];
+        }
     }
+
 }
 
 - (BOOL) isSendingMessage:(int64_t)msgID
@@ -83,7 +88,7 @@
 {
     for (YHSendMessageOperation* op in [_operationQueue operations]) {
         if (op.message.msgID == msgID) {
-            op.delegate = delegate;
+            [op addObserver:delegate];
         }
     }
 }
