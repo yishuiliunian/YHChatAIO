@@ -384,7 +384,7 @@
         YHDataBaseConnection* connection = YHActiveDBConnection;
         for (YHMessage* message in messages) {
             message.isRead = YES;
-            [connection updateMessage:message];
+            [connection updateMessageMsg:message.msgID read:YES];
         }
         DZPostMessageChangedWithMessage(messages.lastObject);
         @synchronized (self) {

@@ -222,8 +222,11 @@ static CGSize kSpaceSize = {20, 14};
     if (_msg.msgStatus != YHMessageStatueNormal) {
         if ([[YHMessageSendManager shareManager] isSendingMessage:_msg.msgID]) {
             _sendingStatus = YHSendingStatusSeding;
-        } else {
+            [[YHMessageSendManager shareManager] moniterSendingMessage:_msg.msgID withDelegate:self];
+        } else if (_msg.msgStatus == YHMessageStatueSendError) {
             _sendingStatus = YHSendingStatusError;
+        } else {
+            _sendingStatus = YHSendingStatusNoSend;
         }
     } else {
         _sendingStatus = YHSendingStatusNoSend;
@@ -473,7 +476,7 @@ static CGSize kSpaceSize = {20, 14};
     if (!_msg.isRead) {
         _msg.isRead = YES;
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
-            [YHActiveDBConnection updateMessage:_msg];
+            [YHActiveDBConnection updateMessageMsg:_msg.msgID read:YES];
         });
     }
     if (_timeString) {
@@ -547,7 +550,6 @@ static CGSize kSpaceSize = {20, 14};
     self.msg.errorMessage = error.localizedDescription;
     [self caculateLayout];
     [self reloadUI];
-    [self showSendingStatusWithCell:self.messageCell];
     NSIndexPath* indexPath =  [self visibleIndexPath];
     if (indexPath && indexPath.row != NSNotFound) {
         [self.superTableView scrollToRowAtIndexPath:indexPath atScrollPosition:UITableViewRowAnimationBottom animated:YES];
@@ -564,8 +566,7 @@ static CGSize kSpaceSize = {20, 14};
         [self reloadUI];
     } else {
         _sendingStatus = YHSendingStatusNoSend;
-        [self caculateLayout];
-        [self reloadUI];
+        [self showSendingStatusWithCell:self.messageCell];
     }
 }
 

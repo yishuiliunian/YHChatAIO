@@ -160,7 +160,7 @@
             }
         }
         weakSelf.msg.isCheckedDetail = YES;
-        [YHActiveDBConnection updateMessage:weakSelf.msg];
+        [YHActiveDBConnection updateMessageMsg:weakSelf.msg.msgID checkDetail:YES];
     });
 }
 

@@ -36,12 +36,15 @@
 
 - (void) addObserver:(id<YHSendMessageDelegate>)observer
 {
+    if (observer == nil) {
+        return;
+    }
     for (id <YHSendMessageDelegate> delegate in _observers) {
         if (delegate == observer) {
             return;;
         }
     }
-    [_observers addPointer:(void *)observer];
+    [_observers addPointer:(__bridge void * _Nullable)observer];
 }
 
 - (BOOL) uploadFileIfNeed:(NSError* __autoreleasing*)error
@@ -66,7 +69,7 @@
     [YHMessageTest reportSendMessage:msgID];
 #endif
     _message.errorMessage = nil;
-    [YHActiveDBConnection updateMessage:_message];
+    [YHActiveDBConnection updateMessageMsg:_message.msgID msgStatus:YHMessageStatueNormal error:_message.errorMessage];
     DZPostMessageChangedWithMessage(_message);
     
     dispatch_async(dispatch_get_main_queue(), ^{
@@ -83,7 +86,7 @@
 
     _message.msgStatus = YHMessageStatueSendError;
     _message.errorMessage = error.localizedDescription;
-    [YHActiveDBConnection updateMessage:_message];
+    [YHActiveDBConnection updateMessageMsg:_message.msgID msgStatus:_message.msgStatus error:_message.errorMessage];
     DZPostMessageChangedWithMessage(_message);
     dispatch_async(dispatch_get_main_queue(), ^{
         for (id <YHSendMessageDelegate> delegate in _observers) {

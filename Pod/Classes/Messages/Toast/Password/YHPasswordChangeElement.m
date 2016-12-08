@@ -66,7 +66,7 @@
     if (!self.msg.isCheckedDetail) {
         self.msg.isCheckedDetail = YES;
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
-            [YHActiveDBConnection updateMessage:self.msg];
+            [YHActiveDBConnection updateMessageMsg:self.msg.msgID read:YES];
         });
     }
 

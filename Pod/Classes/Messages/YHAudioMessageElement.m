@@ -16,6 +16,7 @@
 #import "DZCDNActionManager.h"
 #import "DZVoiceInputView.h"
 #import "DZImageCache.h"
+#import "YHDataBaseConnection.h"
 #import <YHCoreDB.h>
 #import <DZAuthSession/DZAuthSession.h>
 #import <UIKit/UIKit.h>
@@ -215,7 +216,8 @@ static NSString* kYHVoicePlayNotification = @"kYHVoicePlayNotification";
     }
     self.msg.isCheckedDetail = YES;
     self.audioCell.playedIndicatorImageView.hidden  = YES;
-    [YHActiveDBConnection updateMessage:self.msg];
+    [YHActiveDBConnection updateMessageMsg:self.msg.msgID checkDetail:YES];
+
     _player = [[K12AudioPlayer alloc] initWithURL:[NSURL fileURLWithPath:[self functionalFilePath]]];
     _player.delegate = self;
     [_player play];
