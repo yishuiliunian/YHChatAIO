@@ -396,7 +396,7 @@ static CGSize kSpaceSize = {20, 14};
     [self reloadUserInfoIfCan];
     [self loadUI];
     [self showSendingStatusWithCell:cell];
-    if (!self.sendByMe && self.msg.fromType != UserType_SystemUser) {
+    if (self.msg.fromType != UserType_SystemUser) {
         [cell.avatarImageView addSingleClick:self selector:@selector(handleCheckUserInfo)];
         cell.avatarImageView.userInteractionEnabled = YES;
     }
