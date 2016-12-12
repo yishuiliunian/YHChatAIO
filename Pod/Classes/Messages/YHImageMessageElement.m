@@ -135,7 +135,7 @@
     } else {
         url = [NSURL fileURLWithPath:_imageData.URL];
     }
-    YHShowSinglePhoto(url.absoluteString);
+    YHShowSinglePhoto(url.absoluteString, self.imageCell.contentImageView);
 }
 - (void) sendOperationDidStart:(YHSendMessageOperation *)op
 {
