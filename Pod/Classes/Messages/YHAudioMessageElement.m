@@ -217,7 +217,6 @@ static NSString* kYHVoicePlayNotification = @"kYHVoicePlayNotification";
     self.msg.isCheckedDetail = YES;
     self.audioCell.playedIndicatorImageView.hidden  = YES;
     [YHActiveDBConnection updateMessageMsg:self.msg.msgID checkDetail:YES];
-
     _player = [[K12AudioPlayer alloc] initWithURL:[NSURL fileURLWithPath:[self functionalFilePath]]];
     _player.delegate = self;
     [_player play];
@@ -225,10 +224,10 @@ static NSString* kYHVoicePlayNotification = @"kYHVoicePlayNotification";
 }
 - (NSURL*) originFileURL
 {
-    if (![_voice.mediaId.lowercaseString hasPrefix:@"http"]) {
-        return [NSURL fileURLWithPath:_voice.mediaId];
-    } else {
+    if ([_voice.mediaId.lowercaseString hasPrefix:@"http"]) {
         return [NSURL URLWithString:_voice.mediaId];
+    } else {
+        return DZMediaURL(_voice.mediaId);
     }
 }
 

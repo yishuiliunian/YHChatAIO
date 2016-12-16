@@ -106,7 +106,7 @@
     if ([_imageData.URL hasPrefix:@"http"]) {
         [cell.contentImageView loadLittleImageURL:YHImageURLFOrThumbWithString(_imageData.URL)];
     } else {
-        [cell.contentImageView hnk_setImageFromFile:_imageData.URL];
+        [cell.contentImageView hnk_setImageFromFile:DZGenerateLocalPath(_imageData.URL)];
     }
 }
 
@@ -133,7 +133,7 @@
     if ([_imageData.URL.lowercaseString hasPrefix:@"http"]) {
         url = [NSURL URLWithString:_imageData.URL];
     } else {
-        url = [NSURL fileURLWithPath:_imageData.URL];
+        url = DZMediaURL(_imageData.URL);
     }
     YHShowSinglePhoto(url.absoluteString, self.imageCell.contentImageView);
 }

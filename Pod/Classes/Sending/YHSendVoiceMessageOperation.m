@@ -9,6 +9,8 @@
 #import "YHSendVoiceMessageOperation.h"
 #import "YHMessage.h"
 #import "DZCDNActionManager.h"
+#import "DZFileUtils.h"
+
 @interface YHSendVoiceMessageOperation ()
 {
     Voice* _voiceData;
@@ -28,7 +30,7 @@
 
 - (NSString*) localFilePath
 {
-    return _voiceData.mediaId;
+    return DZGenerateLocalPath(_voiceData.mediaId);
 }
 
 - (void) onUploadFile:(NSString *)url

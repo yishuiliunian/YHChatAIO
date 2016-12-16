@@ -42,6 +42,8 @@
 #import "DZObjectProxy.h"
 #import "YHAppConfig.h"
 #import "DZLogger.h"
+
+#import "DZFileUtils.h"
 #ifdef MESSAGE_TEST
 #import "YHMessageTest.h"
 #endif
@@ -424,11 +426,11 @@
         imageData.height = image.size.height;
         NSString* path = DZTempFilePathWithExtension(@"jpeg");
         [UIImageJPEGRepresentation(image, 1.0) writeToFile:path atomically:YES];
-        imageData.URL = path;
+        imageData.URL = DZFilteLocalPath(path);
         message.data = imageData.data;
         message.type = MsgType_Image;
-           message.isCheckedDetail = YES;
-        [[HNKCache sharedCache] setImage:image forKey:path formatName:LTHanekeCacheFormatThumb().name];
+        message.isCheckedDetail = YES;
+        [[HNKCache sharedCache] setImage:image forKey:DZGenerateLocalPath(path) formatName:LTHanekeCacheFormatThumb().name];
         message.isCheckedDetail = YES;
     }];
 }
@@ -437,16 +439,15 @@
 {
     [self createBaseMessageWithData:^(YHMessage *message) {
         Voice* voice = [Voice new];
-        voice.mediaId = url.path;
-        
-        NSURL *urlFile = [NSURL fileURLWithPath:voice.mediaId];
+        voice.mediaId = DZFilteLocalPath(url.path);
+        NSURL *urlFile = url;
         AVAudioPlayer* audioPlayer = [[AVAudioPlayer alloc] initWithContentsOfURL:urlFile error:nil];
         NSTimeInterval time = audioPlayer.duration;
         voice.duration = time;
         voice.format = @"aac";
         message.type = MsgType_Voice;
         message.data = voice.data;
-            message.isCheckedDetail = YES;
+        message.isCheckedDetail = YES;
     }];
 }
 

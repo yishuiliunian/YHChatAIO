@@ -21,11 +21,9 @@
 
 
 @class YHMessage;
+@class YHObserverContainer;
 @interface YHSendMessageOperation : NSOperation
-{
-@protected
-    NSPointerArray * _observers;
-}
+@property  (nonatomic, strong, readonly) YHObserverContainer* observerContainer;
 @property (nonatomic, strong, readonly) YHMessage* message;
 - (instancetype) initWithMessage:(YHMessage*)message;
 - (BOOL) uploadFileIfNeed:(NSError* __autoreleasing*)error;

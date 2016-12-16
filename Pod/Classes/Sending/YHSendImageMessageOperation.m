@@ -8,6 +8,12 @@
 
 #import "YHSendImageMessageOperation.h"
 #import "YHMessage.h"
+#import "DZFileUtils.h"
+#import "HNKCache.h"
+#import "SDWebImageManager.h"
+#import "YHAppearance.h"
+#import "DZFixImage.h"
+
 @interface YHSendImageMessageOperation()
 {
     Image* _imageData;
@@ -27,13 +33,19 @@
 }
 - (NSString*)localFilePath
 {
-    return _imageData.URL;
+    return DZGenerateLocalPath(_imageData.URL);
 }
 
 - (void) onUploadFile:(NSString *)url
 {
     [super onUploadFile:url];
+    UIImage * image =  [UIImage imageWithContentsOfFile:[self localFilePath]];
     _imageData.URL = url;
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH,0), ^{
+        [[SDWebImageManager sharedManager] saveImageToCache:image forURL:[NSURL URLWithString:url]];
+         UIImage * otherImage = [image fixAppearance];
+        [[HNKCache sharedCache] setImage:otherImage forKey:YHImageURLFOrThumbWithString(url).absoluteString formatName:LTHanekeCacheFormatThumb().name];
+    });
     self.message.data = [_imageData data];
 }
 - (void) uploadFile:(NSString *)localFilePath withKey:(NSString *)key process:(OSSNetworkingUploadProgressBlock)process finish:(void (^)(NSError *, NSString *))finish

@@ -10,6 +10,7 @@
 
 #import "YHMessage.h"
 #import "DZCDNActionManager.h"
+#import "YHCommonCache.h"
 
 @interface YHSendFileMessageOperation()
 @property (nonatomic, strong, readonly) NSString* uploadKey;
@@ -27,7 +28,7 @@
 - (void) notifyProcess:(CGFloat)process
 {
     dispatch_async(dispatch_get_main_queue(), ^{
-        for (id <YHSendMessageDelegate> delegate in _observers) {
+        for (id <YHSendMessageDelegate> delegate in self.observerContainer.allDefaultObservers) {
             if ([delegate respondsToSelector:@selector(sendOperation:onProgress:)]) {
                 [delegate sendOperation:self onProgress:process];
             }

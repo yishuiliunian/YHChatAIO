@@ -16,6 +16,8 @@
 
 #ifdef MESSAGE_TEST
 #import "YHMessageTest.h"
+#import "YHCommonCache.h"
+
 #endif
 
 @interface YHSendMessageOperation ()
@@ -30,21 +32,13 @@
         return self;
     }
     _message = message;
-    _observers = [NSPointerArray weakObjectsPointerArray];
+    _observerContainer = [YHObserverContainer new];
     return self;
 }
 
 - (void) addObserver:(id<YHSendMessageDelegate>)observer
 {
-    if (observer == nil) {
-        return;
-    }
-    for (id <YHSendMessageDelegate> delegate in _observers) {
-        if (delegate == observer) {
-            return;;
-        }
-    }
-    [_observers addPointer:(__bridge void * _Nullable)observer];
+    [_observerContainer addDefaultObserver:observer];
 }
 
 - (BOOL) uploadFileIfNeed:(NSError* __autoreleasing*)error
@@ -70,10 +64,11 @@
 #endif
     _message.errorMessage = nil;
     [YHActiveDBConnection updateMessageMsg:_message.msgID msgStatus:YHMessageStatueNormal error:_message.errorMessage];
+    [YHActiveDBConnection updateMessageMsg:_message.msgID data:_message.data];
     DZPostMessageChangedWithMessage(_message);
     
     dispatch_async(dispatch_get_main_queue(), ^{
-        for (id <YHSendMessageDelegate> delegate in _observers) {
+        for (id <YHSendMessageDelegate> delegate in _observerContainer.allDefaultObservers) {
             if ([delegate respondsToSelector:@selector(sendOperationSuccess:message:)]) {
                 [delegate sendOperationSuccess:self message:_message];
             }
@@ -89,7 +84,7 @@
     [YHActiveDBConnection updateMessageMsg:_message.msgID msgStatus:_message.msgStatus error:_message.errorMessage];
     DZPostMessageChangedWithMessage(_message);
     dispatch_async(dispatch_get_main_queue(), ^{
-        for (id <YHSendMessageDelegate> delegate in _observers) {
+        for (id <YHSendMessageDelegate> delegate in _observerContainer.allDefaultObservers) {
             if ([delegate respondsToSelector:@selector(sendOperation:faild:)]) {
                 [delegate sendOperation:self faild:error];
             }
@@ -99,7 +94,7 @@
 - (void) notifyStart
 {
     dispatch_async(dispatch_get_main_queue(), ^{
-    for (id <YHSendMessageDelegate> delegate in _observers) {
+    for (id <YHSendMessageDelegate> delegate in _observerContainer.allDefaultObservers) {
         if ([delegate respondsToSelector:@selector(sendOperationDidStart:)]) {
             [delegate sendOperationDidStart:self];
         }
