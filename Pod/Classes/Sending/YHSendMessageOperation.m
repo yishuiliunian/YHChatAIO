@@ -24,7 +24,7 @@
 
 @end
 @implementation YHSendMessageOperation
-
+@synthesize observerContainer = _observerContainer;
 - (instancetype) initWithMessage:(YHMessage*)message
 {
     self = [super init];
