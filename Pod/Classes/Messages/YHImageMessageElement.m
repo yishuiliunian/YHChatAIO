@@ -135,6 +135,7 @@
     } else {
         url = DZMediaURL(_imageData.URL);
     }
+
     YHShowSinglePhoto(url.absoluteString, self.imageCell.contentImageView);
 }
 - (void) sendOperationDidStart:(YHSendMessageOperation *)op
