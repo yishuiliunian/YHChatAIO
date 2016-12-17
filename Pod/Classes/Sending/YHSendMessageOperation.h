@@ -8,6 +8,7 @@
 
 #import <Foundation/Foundation.h>
 #import "RpcPushMessage.pbobjc.h"
+#import "YHCommonCache.h"
 @class YHSendMessageOperation;
 @class YHMessage;
 @protocol YHSendMessageDelegate <NSObject>
