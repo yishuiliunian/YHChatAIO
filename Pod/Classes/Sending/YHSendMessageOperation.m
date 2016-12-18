@@ -112,20 +112,14 @@
         } else {
             YHSendMessageRequest* request = [[YHSendMessageRequest alloc] initWithMessage:_message];
             request.skey = DZActiveAuthSession.token;
-            
-            __weak typeof(self)weakSelf = self;
-            dispatch_semaphore_t semp = dispatch_semaphore_create(0);
             [request setErrorHandler:^(NSError * error) {
-                [weakSelf sendMessageFaild:error];
-                dispatch_semaphore_signal(semp);
+                [self sendMessageFaild:error];
             }];
             
             [request setSuccessHanlder:^(id object) {
-                [weakSelf sendMessageSuccess];
-                dispatch_semaphore_signal(semp);
+                [self sendMessageSuccess];
             }];
             [request start];
-            dispatch_semaphore_wait(semp, DISPATCH_TIME_FOREVER);
         }
     }
 }
