@@ -50,6 +50,6 @@
 }
 - (void) uploadFile:(NSString *)localFilePath withKey:(NSString *)key process:(OSSNetworkingUploadProgressBlock)process finish:(void (^)(NSError *, NSString *))finish
 {
-    [[YHUploadManager shareManager] uploadImageFile:localFilePath withKey:key process:process finish:finish];
+    [[YHUploadManager shareManager] uploadImageFile:localFilePath withKey:key process:process finish:finish hostObject:self];
 }
 @end

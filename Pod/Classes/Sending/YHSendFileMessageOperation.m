@@ -17,6 +17,10 @@
 @end
 @implementation YHSendFileMessageOperation
 
+- (void) dealloc
+{
+
+}
 - (NSString*) uploadKey
 {
     return [@(self.message.msgID) stringValue];
@@ -69,7 +73,6 @@
 
 - (void) uploadFile:(NSString*)localFilePath withKey:(NSString *)key process:(OSSNetworkingUploadProgressBlock)process finish:(void (^)(NSError *, NSString *))finish
 {
-    [[YHUploadManager shareManager] uploadFile:localFilePath withKey:self.uploadKey process:process finish:finish];
-    
+    [[YHUploadManager shareManager] uploadFile:localFilePath withKey:self.uploadKey process:process finish:finish hostObject:self];
 }
 @end
